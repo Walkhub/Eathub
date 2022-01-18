@@ -21,7 +21,7 @@ class SettingsBootstrap(
         restaurants.add(Restaurant(name = "퀴즈노스", deliveryFee = 5000))
         restaurants.add(Restaurant(name = "롯데리아", deliveryFee = 3000))
         restaurants.add(Restaurant(name = "정환이 가득찬 집밥", deliveryFee = 3000))
-        restaurants.add(Restaurant(name = "퀴즈노스", deliveryFee = 5000))
+        restaurants.add(Restaurant(name = "국수나무", deliveryFee = 3000))
 
         try {
             userRepository.saveAll(users)
