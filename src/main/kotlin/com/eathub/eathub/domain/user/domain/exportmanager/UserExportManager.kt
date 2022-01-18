@@ -12,7 +12,7 @@ class UserExportManager(
     private val userRepository: UserRepository
 ) {
     fun findUserByName(name: String): User {
-        return userRepository.findUserByName(name) ?: throw UserNameNotFoundException.EXCEPTION
+        return userRepository.findByName(name) ?: throw UserNameNotFoundException.EXCEPTION
     }
 
     fun findUserById(id: Long): User {
