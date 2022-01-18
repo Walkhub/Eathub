@@ -1,16 +1,29 @@
 package com.eathub.eathub.domain.food.domain
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import com.eathub.eathub.domain.food.application.domain.FoodApplication
+import com.eathub.eathub.domain.rate.domain.Rate
+import com.eathub.eathub.domain.restaurant.domain.Restaurant
+import javax.persistence.*
 
 @Entity
 class Food(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long,
+
     val name: String,
+
     val cost: Long,
-    val picture: String
+
+    val picture: String,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "restaurant_id")
+    val restaurant: Restaurant,
+
+    @OneToMany(mappedBy = "food", cascade = [CascadeType.PERSIST, CascadeType.REMOVE])
+    val rate: List<Rate> = mutableListOf(),
+
+    @OneToMany(mappedBy = "food", cascade = [CascadeType.PERSIST, CascadeType.REMOVE])
+    val application: List<FoodApplication> = mutableListOf()
 )

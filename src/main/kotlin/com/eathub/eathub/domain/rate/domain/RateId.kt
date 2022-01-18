@@ -8,6 +8,7 @@ import javax.persistence.Embeddable
 class RateId(
     @Column
     val userId: Long,
+
     @Column
-    val restaurantId: Long
+    val foodId: Long
 ) : Serializable
