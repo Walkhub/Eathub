@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull
 @Entity
 class Restaurant(
     @NotNull
+    @Column(unique = true)
     val name: String,
 
     @NotNull
