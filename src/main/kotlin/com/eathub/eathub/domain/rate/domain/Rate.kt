@@ -1,4 +1,10 @@
 package com.eathub.eathub.domain.rate.domain
 
-class Rate {
-}
+import javax.persistence.*
+
+@Entity
+class Rate(
+    @EmbeddedId
+    val rateId: RateId,
+    val score: Double
+)
