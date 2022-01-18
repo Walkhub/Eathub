@@ -7,10 +7,6 @@ import javax.persistence.*
 @Entity
 @Table(indexes = [Index(name = "user_name_index", columnList = "name", unique = true)])
 class User(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
-
     val name: String,
 
     @OneToMany(mappedBy = "user")
@@ -18,4 +14,8 @@ class User(
 
     @OneToMany(mappedBy = "user")
     val foodApplication: List<FoodApplication> = mutableListOf()
-)
+) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0
+}

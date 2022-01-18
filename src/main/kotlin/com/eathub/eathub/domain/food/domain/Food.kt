@@ -7,10 +7,6 @@ import javax.persistence.*
 
 @Entity
 class Food(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
-
     val name: String,
 
     val cost: Long,
@@ -26,4 +22,8 @@ class Food(
 
     @OneToMany(mappedBy = "food", cascade = [CascadeType.PERSIST, CascadeType.REMOVE])
     val application: List<FoodApplication> = mutableListOf()
-)
+) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0
+}
