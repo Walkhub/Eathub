@@ -4,13 +4,17 @@ import com.eathub.eathub.domain.food.application.domain.FoodApplication
 import com.eathub.eathub.domain.rate.domain.Rate
 import com.eathub.eathub.domain.restaurant.domain.Restaurant
 import javax.persistence.*
+import javax.validation.constraints.NotNull
 
 @Entity
 class Food(
+    @NotNull
     val name: String,
 
+    @NotNull
     val cost: Long,
 
+    @NotNull
     val picture: String,
 
     @ManyToOne(fetch = FetchType.LAZY)

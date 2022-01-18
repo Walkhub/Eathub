@@ -5,6 +5,7 @@ import com.eathub.eathub.domain.food.domain.Food
 import com.eathub.eathub.domain.user.domain.User
 import java.time.LocalDate
 import javax.persistence.*
+import javax.validation.constraints.NotNull
 
 @Entity
 class FoodApplication(
@@ -12,8 +13,10 @@ class FoodApplication(
     val foodApplicationId: FoodApplicationId,
 
     @Enumerated(EnumType.STRING)
+    @NotNull
     val applicationType: ApplicationType,
 
+    @NotNull
     val applicationDate: LocalDate,
 
     @MapsId("foodId")
