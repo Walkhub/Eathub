@@ -22,8 +22,8 @@ class SocketErrorController : ExceptionListener {
     override fun exceptionCaught(ctx: ChannelHandlerContext, e: Throwable?): Boolean = false
 
     private fun doError(throwable: Throwable, client: SocketIOClient) {
-        when (throwable) {
-            is GlobalException -> sendErrorMessage(throwable, client)
+        when (val exception = throwable.cause) {
+            is GlobalException -> sendErrorMessage(exception, client)
             else -> sendErrorMessage(InternalServerError.EXCEPTION, client)
         }
     }
