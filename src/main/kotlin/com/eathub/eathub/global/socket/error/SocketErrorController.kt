@@ -5,7 +5,6 @@ import com.corundumstudio.socketio.listener.ExceptionListener
 import com.eathub.eathub.global.exception.GlobalException
 import com.eathub.eathub.global.exception.exceptions.InternalServerError
 import com.eathub.eathub.global.payload.BaseResponse
-import com.eathub.eathub.global.socket.property.EventProperties
 import com.eathub.eathub.global.socket.property.SocketProperties
 import io.netty.channel.ChannelHandlerContext
 import org.springframework.stereotype.Controller
