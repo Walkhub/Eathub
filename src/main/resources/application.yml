@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database: mysql
+    open-in-view: false
+
+  socketio:
+    port: ${SOCKET_PORT}
