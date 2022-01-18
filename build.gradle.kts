@@ -35,6 +35,8 @@ dependencies {
 
     // socketio
     implementation("com.corundumstudio.socketio:netty-socketio:1.7.19")
+
+    implementation("org.springframework.boot:spring-boot-starter-validation")
 }
 
 tasks.withType<KotlinCompile> {
