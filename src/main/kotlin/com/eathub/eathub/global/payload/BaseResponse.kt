@@ -1,0 +1,24 @@
+package com.eathub.eathub.global.payload
+
+import com.eathub.eathub.global.exception.GlobalException
+import com.fasterxml.jackson.annotation.JsonInclude
+
+class BaseResponse<T>(
+    val status: Int,
+    val message: String,
+    val koreanMessage: String,
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    val content: T?
+) {
+
+    companion object {
+        fun of(exception: GlobalException): BaseResponse<Unit> {
+            return BaseResponse(
+                status = exception.status,
+                message = exception.errorMessage,
+                koreanMessage = exception.koreanMessage,
+                content = null
+            )
+        }
+    }
+}
