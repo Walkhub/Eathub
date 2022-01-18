@@ -7,9 +7,6 @@ import javax.validation.constraints.NotNull
 
 @Entity
 class Rate(
-    @EmbeddedId
-    val rateId: RateId,
-
     @NotNull
     val score: Double,
 
@@ -20,4 +17,7 @@ class Rate(
     @MapsId("foodId")
     @ManyToOne(fetch = FetchType.LAZY)
     val food: Food
-)
+) {
+    @EmbeddedId
+    val rateId: RateId = RateId(user.id, food.id)
+}
