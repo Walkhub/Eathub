@@ -16,6 +16,8 @@ class FoodApplication(
     @Column(nullable = false)
     val applicationType: ApplicationType,
 
+    val count: Int,
+
     @MapsId("foodId")
     @ManyToOne(fetch = FetchType.LAZY)
     val food: Food,

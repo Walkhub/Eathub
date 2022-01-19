@@ -5,5 +5,6 @@ import com.eathub.eathub.domain.food.application.domain.enums.ApplicationType
 class FoodApplicationRequest(
     val userName: String,
     val foodId: Long,
-    val applicationType: ApplicationType
+    val applicationType: ApplicationType,
+    val count: Int
 )

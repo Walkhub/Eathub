@@ -28,10 +28,11 @@ class FoodApplicationService(
         val foodApplication = FoodApplication(
             food = food,
             user = user,
-            applicationType = request.applicationType
+            applicationType = request.applicationType,
+            count = request.count
         )
 
-        val savedFoodApplication = foodApplicationRepository.save(foodApplication)
+        foodApplicationRepository.save(foodApplication)
 
         val message = FoodApplicationMessage(
             foodId = food.id,
