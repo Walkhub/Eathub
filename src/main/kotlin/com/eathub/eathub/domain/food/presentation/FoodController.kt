@@ -21,9 +21,4 @@ class FoodController(
         foodService.getFoodList(socketIOClient)
     }
 
-    @OnConnect
-    fun onConnect(socketIOClient: SocketIOClient) {
-        socketIOClient.sendEvent("test", "test")
-    }
-
 }
