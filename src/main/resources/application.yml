@@ -14,4 +14,4 @@ spring:
     port: ${SOCKET_PORT}
 
 server:
-  port: 8082
+  port: 8083
