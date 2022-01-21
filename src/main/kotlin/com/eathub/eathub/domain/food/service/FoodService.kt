@@ -55,12 +55,12 @@ class FoodService(
 
     fun getFoodList(socketIOClient: SocketIOClient) {
         val foods = foodRepository.findAllBy()
-        val foodResponse = foods.map { buildFoodListResponseFromFoodEntity(it) }
+        val foodResponse = foods.map { buildFoodListFromResponseFromFoodEntity(it) }
 
         socketIOClient.sendEvent(FOOD_LIST_KEY, foodResponse)
     }
 
-    private fun buildFoodListResponseFromFoodEntity(food: Food): FoodResponse {
+    private fun buildFoodListFromResponseFromFoodEntity(food: Food): FoodResponse {
         return FoodResponse(
             foodName = food.name,
             foodCost = food.cost,
