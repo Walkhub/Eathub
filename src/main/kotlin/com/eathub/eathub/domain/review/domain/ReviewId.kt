@@ -1,11 +1,11 @@
-package com.eathub.eathub.domain.rate.domain
+package com.eathub.eathub.domain.review.domain
 
 import java.io.Serializable
 import javax.persistence.Column
 import javax.persistence.Embeddable
 
 @Embeddable
-class RateId(
+class ReviewId(
     @Column
     val userId: Long,
 

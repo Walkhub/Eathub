@@ -1,4 +1,4 @@
-package com.eathub.eathub.domain.rate.domain
+package com.eathub.eathub.domain.review.domain
 
 import com.eathub.eathub.domain.food.domain.Food
 import com.eathub.eathub.domain.user.domain.User
@@ -6,7 +6,7 @@ import javax.persistence.*
 import javax.validation.constraints.NotNull
 
 @Entity
-class Rate(
+class Review(
     @NotNull
     val score: Double,
 
@@ -19,5 +19,5 @@ class Rate(
     val food: Food
 ) {
     @EmbeddedId
-    val rateId: RateId = RateId(user.id, food.id)
+    val reviewId: ReviewId = ReviewId(user.id, food.id)
 }

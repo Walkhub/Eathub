@@ -7,7 +7,7 @@ import com.eathub.eathub.domain.food.domain.repositories.FoodRepository
 import com.eathub.eathub.domain.food.presentation.dto.CreateFoodMessage
 import com.eathub.eathub.domain.food.presentation.dto.CreateFoodRequest
 import com.eathub.eathub.domain.food.presentation.dto.FoodResponse
-import com.eathub.eathub.domain.rate.domain.Rate
+import com.eathub.eathub.domain.review.domain.Review
 import com.eathub.eathub.domain.restaurant.domain.Restaurant
 import com.eathub.eathub.domain.restaurant.domain.exportmanager.RestaurantExportManager
 import org.springframework.stereotype.Service
@@ -65,19 +65,19 @@ class FoodService(
             foodName = food.name,
             foodCost = food.cost,
             foodPicture = food.picture,
-            foodScore = getRateAverage(food.rate),
+            foodScore = getRateAverage(food.review),
             restaurantName = food.restaurant.name
         )
     }
 
-    private fun getRateAverage(rates: List<Rate>): Double? {
-        val isRateExists = rates.isNotEmpty()
-        val doubleAverage = rates.map { it.score }
+    private fun getRateAverage(reviews: List<Review>): Double? {
+        val isReviewExists = reviews.isNotEmpty()
+        val doubleAverage = reviews.map { it.score }
             .average()
 
         val roundedAverage = String.format("%.2f", doubleAverage).toDouble()
 
-        return when (isRateExists) {
+        return when (isReviewExists) {
             true -> roundedAverage
             false -> null
         }
