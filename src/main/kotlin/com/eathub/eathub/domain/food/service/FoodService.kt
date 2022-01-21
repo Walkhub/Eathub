@@ -8,6 +8,7 @@ import com.eathub.eathub.domain.food.presentation.dto.CreateFoodMessage
 import com.eathub.eathub.domain.food.presentation.dto.CreateFoodRequest
 import com.eathub.eathub.domain.food.presentation.dto.FoodResponse
 import com.eathub.eathub.domain.rate.domain.Rate
+import com.eathub.eathub.domain.restaurant.domain.Restaurant
 import com.eathub.eathub.domain.restaurant.domain.exportmanager.RestaurantExportManager
 import org.springframework.stereotype.Service
 
@@ -24,17 +25,25 @@ class FoodService(
 
     fun createNewFood(request: CreateFoodRequest) {
         val restaurant = restaurantExportManager.findRestaurantById(request.restaurantId)
+        val food = buildFoodFromRequestAndRestaurant(request, restaurant)
+        val savedFood = foodRepository.save(food)
+        val message = buildFoodMessageFromRestaurantAndSavedFood(restaurant, savedFood)
 
-        val food = Food(
+            socketIOServer.broadcastOperations
+                .sendEvent(CREATE_FOOD_KEY, message)
+    }
+
+    fun buildFoodFromRequestAndRestaurant(request: CreateFoodRequest, restaurant: Restaurant): Food {
+        return Food(
             name = request.name,
             cost = request.cost,
             picture = request.imageUrl,
             restaurant = restaurant
         )
+    }
 
-        val savedFood = foodRepository.save(food)
-
-        val message = CreateFoodMessage(
+    fun buildFoodMessageFromRestaurantAndSavedFood(restaurant: Restaurant, savedFood: Food): CreateFoodMessage {
+        return CreateFoodMessage(
             restaurantId = restaurant.id,
             restaurantName = restaurant.name,
             name = savedFood.name,
@@ -42,9 +51,6 @@ class FoodService(
             foodId = savedFood.id,
             imageUrl = savedFood.picture
         )
-
-        socketIOServer.broadcastOperations
-            .sendEvent(CREATE_FOOD_KEY, message)
     }
 
     fun getFoodList(socketIOClient: SocketIOClient) {
