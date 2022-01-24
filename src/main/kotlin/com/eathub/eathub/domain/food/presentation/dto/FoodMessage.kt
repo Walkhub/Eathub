@@ -1,6 +1,6 @@
 package com.eathub.eathub.domain.food.presentation.dto
 
-class FoodResponse(
+class FoodMessage(
     val foodName: String,
     val foodPicture: String,
     val foodCost: Long,
@@ -8,6 +8,6 @@ class FoodResponse(
     val restaurantName: String
 )
 
-class FoodListResponse(
-    val foods: List<FoodResponse>
+class FoodMessages(
+    val foods: List<FoodMessage>
 )

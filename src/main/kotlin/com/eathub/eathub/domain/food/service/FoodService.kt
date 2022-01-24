@@ -6,10 +6,11 @@ import com.eathub.eathub.domain.food.domain.Food
 import com.eathub.eathub.domain.food.domain.repositories.FoodRepository
 import com.eathub.eathub.domain.food.presentation.dto.CreateFoodMessage
 import com.eathub.eathub.domain.food.presentation.dto.CreateFoodRequest
-import com.eathub.eathub.domain.food.presentation.dto.FoodResponse
-import com.eathub.eathub.domain.review.domain.Review
+import com.eathub.eathub.domain.food.presentation.dto.FoodMessages
+import com.eathub.eathub.domain.food.presentation.dto.FoodMessage
 import com.eathub.eathub.domain.restaurant.domain.Restaurant
 import com.eathub.eathub.domain.restaurant.domain.exportmanager.RestaurantExportManager
+import com.eathub.eathub.domain.review.domain.Review
 import org.springframework.stereotype.Service
 
 @Service
@@ -29,11 +30,11 @@ class FoodService(
         val savedFood = foodRepository.save(food)
         val message = buildFoodMessageFromRestaurantAndSavedFood(restaurant, savedFood)
 
-            socketIOServer.broadcastOperations
-                .sendEvent(CREATE_FOOD_KEY, message)
+        socketIOServer.broadcastOperations
+            .sendEvent(CREATE_FOOD_KEY, message)
     }
 
-    fun buildFoodFromRequestAndRestaurant(request: CreateFoodRequest, restaurant: Restaurant): Food {
+    private fun buildFoodFromRequestAndRestaurant(request: CreateFoodRequest, restaurant: Restaurant): Food {
         return Food(
             name = request.name,
             cost = request.cost,
@@ -42,7 +43,7 @@ class FoodService(
         )
     }
 
-    fun buildFoodMessageFromRestaurantAndSavedFood(restaurant: Restaurant, savedFood: Food): CreateFoodMessage {
+    private fun buildFoodMessageFromRestaurantAndSavedFood(restaurant: Restaurant, savedFood: Food): CreateFoodMessage {
         return CreateFoodMessage(
             restaurantId = restaurant.id,
             restaurantName = restaurant.name,
@@ -55,13 +56,18 @@ class FoodService(
 
     fun getFoodList(socketIOClient: SocketIOClient) {
         val foods = foodRepository.findAllBy()
-        val foodResponse = foods.map { buildFoodListFromResponseFromFoodEntity(it) }
+        val foodResponse = buildFoodListResponse(foods)
 
         socketIOClient.sendEvent(FOOD_LIST_KEY, foodResponse)
     }
 
-    private fun buildFoodListFromResponseFromFoodEntity(food: Food): FoodResponse {
-        return FoodResponse(
+    private fun buildFoodListResponse(foods: List<Food>): FoodMessages {
+        val foodResponses = foods.map { buildFoodResponse(it) }
+        return FoodMessages(foodResponses)
+    }
+
+    private fun buildFoodResponse(food: Food): FoodMessage {
+        return FoodMessage(
             foodName = food.name,
             foodCost = food.cost,
             foodPicture = food.picture,
