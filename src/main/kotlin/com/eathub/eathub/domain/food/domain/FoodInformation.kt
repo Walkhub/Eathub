@@ -15,5 +15,6 @@ class FoodInformation(
     val scoreRank: Int,
     val restaurantName: String,
     val restaurantId: Long,
-    val reviewAverage: Double
+    val reviewAverage: Double,
+    val imageUrl: String
 )

@@ -111,7 +111,8 @@ class FoodService(
             restaurantName = food.restaurantName,
             restaurantId = food.restaurantId,
             totalCount = food.totalAmount,
-            rank = food.scoreRank
+            rank = food.scoreRank,
+            imageUrl = food.imageUrl
         )
 
     private fun getFoodEntity(foodId: Long) =
