@@ -76,7 +76,8 @@ class FoodService(
             foodCost = food.cost,
             foodPicture = food.picture,
             foodScore = getRateAverage(food.review),
-            restaurantName = food.restaurant.name
+            restaurantName = food.restaurant.name,
+            foodId = food.id
         )
 
     private fun sendFoodListToClient(foodMessages: FoodMessages, socketIOClient: SocketIOClient) =
