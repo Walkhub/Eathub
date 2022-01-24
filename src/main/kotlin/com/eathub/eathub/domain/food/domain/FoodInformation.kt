@@ -6,7 +6,7 @@ import javax.persistence.Table
 
 @Entity
 @Table(name = "food_information")
-class FoodView(
+class FoodInformation(
     @Id
     val id: Long,
     val name: String,
@@ -16,5 +16,4 @@ class FoodView(
     val restaurantName: String,
     val restaurantId: Long,
     val reviewAverage: Double
-) {
-}
+)
