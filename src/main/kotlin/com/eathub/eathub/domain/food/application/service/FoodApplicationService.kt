@@ -5,7 +5,9 @@ import com.eathub.eathub.domain.food.application.domain.FoodApplication
 import com.eathub.eathub.domain.food.application.domain.repositories.FoodApplicationRepository
 import com.eathub.eathub.domain.food.application.presentation.dto.FoodApplicationMessage
 import com.eathub.eathub.domain.food.application.presentation.dto.FoodApplicationRequest
+import com.eathub.eathub.domain.food.domain.Food
 import com.eathub.eathub.domain.food.exportmanager.FoodExportManager
+import com.eathub.eathub.domain.user.domain.User
 import com.eathub.eathub.domain.user.domain.exportmanager.UserExportManager
 import org.springframework.stereotype.Service
 
@@ -25,16 +27,27 @@ class FoodApplicationService(
         val user = userExportManager.findUserByName(request.userName)
         val food = foodExportManager.findFoodById(request.foodId)
 
-        val foodApplication = FoodApplication(
+        val foodApplication = buildFoodApplication(food, user, request)
+
+        foodApplicationRepository.save(foodApplication)
+
+        val message = buildFoodApplicationMessage(food, user, foodApplication)
+
+        socketIOServer.broadcastOperations
+            .sendEvent(FOOD_APPLICATION_KEY, message)
+    }
+
+    private fun buildFoodApplication(food: Food, user: User, request: FoodApplicationRequest): FoodApplication {
+        return FoodApplication(
             food = food,
             user = user,
             applicationType = request.applicationType,
             count = request.count
         )
+    }
 
-        foodApplicationRepository.save(foodApplication)
-
-        val message = FoodApplicationMessage(
+    private fun buildFoodApplicationMessage(food: Food, user: User, foodApplication: FoodApplication): FoodApplicationMessage {
+        return FoodApplicationMessage(
             foodId = food.id,
             cost = food.cost,
             imageUrl = food.picture,
@@ -43,9 +56,6 @@ class FoodApplicationService(
             userId = user.id,
             userName = user.name
         )
-
-        socketIOServer.broadcastOperations
-            .sendEvent(FOOD_APPLICATION_KEY, message)
     }
 
 }
