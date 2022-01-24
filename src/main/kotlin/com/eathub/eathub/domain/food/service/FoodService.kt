@@ -80,10 +80,7 @@ class FoodService(
             foodId = food.id
         )
 
-    private fun sendFoodListToClient(foodMessages: FoodMessages, socketIOClient: SocketIOClient) =
-        socketIOClient.sendEvent(FOOD_LIST_KEY, foodMessages)
-
-    private fun getRateAverage(reviews: List<Review>): Double? {
+    private fun getRateAverage(reviews: List<Review>): Double {
         val isReviewExists = reviews.isNotEmpty()
         val doubleAverage = reviews.map { it.score }
             .average()
@@ -92,9 +89,12 @@ class FoodService(
 
         return when (isReviewExists) {
             true -> roundedAverage
-            false -> null
+            false -> 0.0
         }
     }
+
+    private fun sendFoodListToClient(foodMessages: FoodMessages, socketIOClient: SocketIOClient) =
+        socketIOClient.sendEvent(FOOD_LIST_KEY, foodMessages)
 
     fun getFoodInformation(request: FoodInformationRequest, socketIOClient: SocketIOClient) {
         val food = getFoodEntity(request.foodId)
