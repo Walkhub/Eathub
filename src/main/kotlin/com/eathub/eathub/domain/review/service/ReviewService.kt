@@ -50,7 +50,7 @@ class ReviewService(
     }
 
     private fun saveReview(review: Review) = try {
-        reviewRepository.saveAndFlush(review)
+        reviewRepository.save(review)
     } catch (e: SQLIntegrityConstraintViolationException) {
         throw ReviewAlreadyWroteException.EXCEPTION
     }
@@ -59,7 +59,7 @@ class ReviewService(
         CreateReviewMessage(
             score = review.score,
             content = review.content,
-            createAt = review.createAt!!,
+            createAt = review.createAt,
             userName = review.user.name,
             userId = review.user.id,
             foodId = review.food.id
@@ -85,7 +85,7 @@ class ReviewService(
             userId = review.user.id,
             foodId = review.food.id,
             userName = review.user.name,
-            createAt = review.createAt!!,
+            createAt = review.createAt,
             content = review.content,
             score = review.score
         )
