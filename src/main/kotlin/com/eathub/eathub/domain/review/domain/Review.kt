@@ -4,7 +4,6 @@ import com.eathub.eathub.domain.food.domain.Food
 import com.eathub.eathub.domain.user.domain.User
 import java.time.LocalDateTime
 import javax.persistence.*
-import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
 @Entity
@@ -25,6 +24,6 @@ class Review(
     @EmbeddedId
     val reviewId: ReviewId = ReviewId(user.id, food.id)
 
-    @NotBlank
+    @NotNull
     var createAt: LocalDateTime = LocalDateTime.now()
 }
