@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param
 
 interface ReviewRepository : JpaRepository<Review, Long> {
 
-    @Query("select r from Review r join fetch r.food join fetch r.user where r.food = :food")
-    fun findAllReviewsByFoodId(@Param("food") food: Food): List<Review>
+    @Query("select r from Review r join fetch r.food join fetch r.user where r.food.id = :foodId")
+    fun findAllReviewsByFoodId(@Param("foodId") foodId: Long): List<Review>
 
 }
