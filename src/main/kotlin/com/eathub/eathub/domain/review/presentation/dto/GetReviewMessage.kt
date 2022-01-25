@@ -8,5 +8,8 @@ class GetReviewMessage(
     val foodId: Long,
     val userName: String,
     val userId: Long,
-    val createAt: LocalDateTime
+    val createAt: LocalDateTime,
+    val totalAmount: Int,
+    val rank: Int,
+    val reviewAverage: Double
 )

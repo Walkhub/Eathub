@@ -3,8 +3,6 @@ package com.eathub.eathub.domain.food.service
 import com.corundumstudio.socketio.SocketIOClient
 import com.corundumstudio.socketio.SocketIOServer
 import com.eathub.eathub.domain.food.domain.Food
-import com.eathub.eathub.domain.food.domain.FoodInformation
-import com.eathub.eathub.domain.food.domain.repositories.FoodInformationRepository
 import com.eathub.eathub.domain.food.domain.repositories.FoodRepository
 import com.eathub.eathub.domain.food.exceptions.FoodNotFoundException
 import com.eathub.eathub.domain.food.presentation.dto.*
@@ -18,7 +16,6 @@ import org.springframework.stereotype.Service
 class FoodService(
     private val socketIOServer: SocketIOServer,
     private val foodRepository: FoodRepository,
-    private val foodInformationRepository: FoodInformationRepository,
     private val restaurantExportManager: RestaurantExportManager
 ) {
     companion object {
@@ -75,23 +72,9 @@ class FoodService(
             foodName = food.name,
             foodCost = food.cost,
             foodPicture = food.picture,
-            foodScore = getRateAverage(food.review),
             restaurantName = food.restaurant.name,
             foodId = food.id
         )
-
-    private fun getRateAverage(reviews: List<Review>): Double {
-        val isReviewExists = reviews.isNotEmpty()
-        val doubleAverage = reviews.map { it.score }
-            .average()
-
-        val roundedAverage = String.format("%.2f", doubleAverage).toDouble()
-
-        return when (isReviewExists) {
-            true -> roundedAverage
-            false -> 0.0
-        }
-    }
 
     private fun sendFoodListToClient(foodMessages: FoodMessages, socketIOClient: SocketIOClient) =
         socketIOClient.sendEvent(FOOD_LIST_KEY, foodMessages)
@@ -103,20 +86,17 @@ class FoodService(
         sendFoodInformationToClient(message, socketIOClient)
     }
 
-    private fun buildFoodInformationMessage(food: FoodInformation) =
+    private fun buildFoodInformationMessage(food: Food) =
         FoodInformationMessage(
             name = food.name,
-            foodScore = food.reviewAverage,
             cost = food.cost,
-            restaurantName = food.restaurantName,
-            restaurantId = food.restaurantId,
-            totalCount = food.totalAmount,
-            rank = food.scoreRank,
-            imageUrl = food.imageUrl
+            restaurantName = food.restaurant.name,
+            restaurantId = food.restaurant.id,
+            imageUrl = food.picture
         )
 
     private fun getFoodEntity(foodId: Long) =
-        foodInformationRepository.findByIdOrNull(foodId) ?: throw FoodNotFoundException.EXCEPTION
+        foodRepository.findByIdOrNull(foodId) ?: throw FoodNotFoundException.EXCEPTION
 
     private fun sendFoodInformationToClient(foodInformation: FoodInformationMessage, socketIOClient: SocketIOClient) =
         socketIOClient.sendEvent(FOOD_INFO_KEY, foodInformation)
