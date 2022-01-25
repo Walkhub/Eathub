@@ -11,18 +11,20 @@ class Review(
     @NotNull
     val score: Double,
 
-    @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     val user: User,
 
-    @MapsId("foodId")
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "food_id", nullable = false)
     val food: Food,
 
+    @NotNull
     val content: String
 ) {
-    @EmbeddedId
-    val reviewId: ReviewId = ReviewId(user.id, food.id)
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0
 
     @NotNull
     var createAt: LocalDateTime = LocalDateTime.now()
