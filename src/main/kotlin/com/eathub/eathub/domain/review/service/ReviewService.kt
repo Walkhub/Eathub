@@ -10,7 +10,6 @@ import com.eathub.eathub.domain.review.presentation.dto.CreateReviewMessage
 import com.eathub.eathub.domain.review.presentation.dto.CreateReviewRequest
 import com.eathub.eathub.domain.review.presentation.dto.GetReviewListRequest
 import com.eathub.eathub.domain.review.presentation.dto.GetReviewMessage
-import com.eathub.eathub.domain.user.domain.User
 import com.eathub.eathub.domain.user.domain.exportmanager.UserExportManager
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -51,7 +50,7 @@ class ReviewService(
     }
 
     private fun saveReview(review: Review) = try {
-        reviewRepository.save(review)
+        reviewRepository.saveAndFlush(review)
     } catch (e: SQLIntegrityConstraintViolationException) {
         throw ReviewAlreadyWroteException.EXCEPTION
     }
