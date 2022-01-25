@@ -11,7 +11,9 @@ import com.eathub.eathub.domain.restaurant.domain.exportmanager.RestaurantExport
 import com.eathub.eathub.domain.review.domain.Review
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
+@Transactional
 @Service
 class FoodService(
     private val socketIOServer: SocketIOServer,
