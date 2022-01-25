@@ -48,10 +48,10 @@ class FoodService(
         CreateFoodMessage(
             restaurantId = restaurant.id,
             restaurantName = restaurant.name,
-            name = savedFood.name,
-            cost = savedFood.cost,
+            foodName = savedFood.name,
+            foodCost = savedFood.cost,
             foodId = savedFood.id,
-            imageUrl = savedFood.picture
+            foodPicture = savedFood.picture
         )
 
     private fun sendCreateFoodMessageToAllClient(createFoodMessage: CreateFoodMessage) =

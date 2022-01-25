@@ -5,7 +5,7 @@ class FoodInformationMessage(
     val cost: Long,
     val restaurantName: String,
     val restaurantId: Long,
-    val foodScore: Double?,
+    val foodScore: Double,
     val rank: Int,
     val totalCount: Int,
     val imageUrl: String
