@@ -1,6 +1,5 @@
 package com.eathub.eathub.domain.review.domain.repositories
 
-import com.eathub.eathub.domain.food.domain.Food
 import com.eathub.eathub.domain.review.domain.Review
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query

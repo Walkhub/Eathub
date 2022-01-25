@@ -6,7 +6,7 @@ import com.eathub.eathub.domain.food.exceptions.FoodNotFoundException
 import com.eathub.eathub.domain.food.exportmanager.FoodExportManager
 import com.eathub.eathub.domain.review.domain.Review
 import com.eathub.eathub.domain.review.domain.ReviewInformation
-import com.eathub.eathub.domain.review.domain.repositories.FoodInformationRepository
+import com.eathub.eathub.domain.review.domain.repositories.ReviewInformationRepository
 import com.eathub.eathub.domain.review.domain.repositories.ReviewRepository
 import com.eathub.eathub.domain.review.exceptions.ReviewAlreadyWroteException
 import com.eathub.eathub.domain.review.presentation.dto.*
@@ -19,7 +19,7 @@ import java.sql.SQLIntegrityConstraintViolationException
 @Service
 class ReviewService(
     private val reviewRepository: ReviewRepository,
-    private val reviewInformationRepository: FoodInformationRepository,
+    private val reviewInformationRepository: ReviewInformationRepository,
     private val userExportManager: UserExportManager,
     private val foodExportManager: FoodExportManager,
     private val socketIOServer: SocketIOServer
@@ -86,7 +86,10 @@ class ReviewService(
     private fun findReviewsByFoodId(foodId: Long) =
         reviewRepository.findAllReviewsByFoodId(foodId)
 
-    private fun buildReviewMessageList(reviewInformations: ReviewInformation, reviews: List<Review>): GetReviewMessageList {
+    private fun buildReviewMessageList(
+        reviewInformations: ReviewInformation,
+        reviews: List<Review>
+    ): GetReviewMessageList {
         val reviewMessages = reviews.map { buildReviewMessage(it) }
         return GetReviewMessageList(
             rank = reviewInformations.scoreRank,
