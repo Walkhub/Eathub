@@ -28,7 +28,7 @@ class Review(
     val reviewId: ReviewId = ReviewId(user.id, food.id)
 
     @CreatedDate
-    @NotNull
+    @Column(nullable = false)
     var createAt: LocalDateTime? = null
         protected set
 }
