@@ -24,6 +24,7 @@ class FoodService(
         private const val CREATE_FOOD_KEY = "food.create"
         private const val FOOD_LIST_KEY = "food.list"
         private const val FOOD_INFO_KEY = "food.information"
+        private const val FOOD_INFO_ROOM_KEY = "food.room."
     }
 
     fun createNewFood(request: CreateFoodRequest) {
@@ -86,6 +87,7 @@ class FoodService(
         val message = buildFoodInformationMessage(food)
 
         sendFoodInformationToClient(message, socketIOClient)
+        joinFoodInformationRoom(socketIOClient, request.foodId)
     }
 
     private fun buildFoodInformationMessage(food: Food) =
@@ -102,4 +104,16 @@ class FoodService(
 
     private fun sendFoodInformationToClient(foodInformation: FoodInformationMessage, socketIOClient: SocketIOClient) =
         socketIOClient.sendEvent(FOOD_INFO_KEY, foodInformation)
+
+    private fun joinFoodInformationRoom(socketIOClient: SocketIOClient, foodId: Long) =
+        socketIOClient.joinRoom(getFoodRoomName(foodId))
+
+    fun signOutRoom(socketIOClient: SocketIOClient, request: FoodSignOutRequest) {
+        outRoom(socketIOClient, request.foodId)
+    }
+
+    private fun outRoom(socketIOClient: SocketIOClient, roomId: Long) =
+        socketIOClient.leaveRoom(getFoodRoomName(roomId))
+
+    private fun getFoodRoomName(foodId: Long) = "$FOOD_INFO_ROOM_KEY$foodId"
 }
