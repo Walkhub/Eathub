@@ -33,8 +33,7 @@ class FoodApplicationService(
 
         val message = buildFoodApplicationMessage(food, user, foodApplication)
 
-        socketIOServer.broadcastOperations
-            .sendEvent(FOOD_APPLICATION_KEY, message)
+        sendApplicationMessageToAllClients(message)
     }
 
     private fun buildFoodApplication(food: Food, user: User, request: FoodApplicationRequest): FoodApplication {
@@ -46,7 +45,11 @@ class FoodApplicationService(
         )
     }
 
-    private fun buildFoodApplicationMessage(food: Food, user: User, foodApplication: FoodApplication): FoodApplicationMessage {
+    private fun buildFoodApplicationMessage(
+        food: Food,
+        user: User,
+        foodApplication: FoodApplication
+    ): FoodApplicationMessage {
         return FoodApplicationMessage(
             foodId = food.id,
             cost = food.cost,
@@ -57,5 +60,9 @@ class FoodApplicationService(
             userName = user.name
         )
     }
+
+    private fun sendApplicationMessageToAllClients(message: FoodApplicationMessage) =
+        socketIOServer.broadcastOperations
+            .sendEvent(FOOD_APPLICATION_KEY, message)
 
 }
