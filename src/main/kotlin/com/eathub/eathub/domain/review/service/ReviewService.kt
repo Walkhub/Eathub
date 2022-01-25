@@ -10,6 +10,7 @@ import com.eathub.eathub.domain.review.presentation.dto.CreateReviewMessage
 import com.eathub.eathub.domain.review.presentation.dto.CreateReviewRequest
 import com.eathub.eathub.domain.review.presentation.dto.GetReviewListRequest
 import com.eathub.eathub.domain.review.presentation.dto.GetReviewMessage
+import com.eathub.eathub.domain.user.domain.User
 import com.eathub.eathub.domain.user.domain.exportmanager.UserExportManager
 import org.springframework.stereotype.Service
 import java.sql.SQLIntegrityConstraintViolationException
@@ -29,7 +30,7 @@ class ReviewService(
 
     fun createReview(request: CreateReviewRequest) {
         val review = buildReview(request)
-        val savedReview = reviewRepository.save(review)
+        val savedReview = saveReview(review)
 
         val message = buildCreateReviewMessage(savedReview)
         sendCreateReviewMessageToAllClient(message)
