@@ -11,6 +11,7 @@ import com.eathub.eathub.domain.review.domain.repositories.ReviewRepository
 import com.eathub.eathub.domain.review.exceptions.ReviewAlreadyWroteException
 import com.eathub.eathub.domain.review.presentation.dto.*
 import com.eathub.eathub.domain.user.domain.exportmanager.UserExportManager
+import com.eathub.eathub.global.socket.property.SocketProperties
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -24,11 +25,6 @@ class ReviewService(
     private val foodExportManager: FoodExportManager,
     private val socketIOServer: SocketIOServer
 ) {
-
-    companion object {
-        const val CREATE_REVIEW_KEY = "review.create"
-        const val GET_REVIEW_KEY = "review.list"
-    }
 
     @Transactional
     fun createReview(request: CreateReviewRequest) {
@@ -72,7 +68,7 @@ class ReviewService(
         )
 
     private fun sendCreateReviewMessageToAllClient(message: CreateReviewMessage) =
-        socketIOServer.broadcastOperations.sendEvent(CREATE_REVIEW_KEY, message)
+        socketIOServer.broadcastOperations.sendEvent(SocketProperties.CREATE_REVIEW_KEY, message)
 
     fun getReviews(socketIOClient: SocketIOClient, request: GetReviewListRequest) {
         val reviews = findReviewsByFoodId(request.foodId)
@@ -113,5 +109,5 @@ class ReviewService(
         reviewInformationRepository.findByIdOrNull(foodId) ?: throw FoodNotFoundException.EXCEPTION
 
     private fun sendReviewMessage(socketIOClient: SocketIOClient, message: GetReviewMessageList) =
-        socketIOClient.sendEvent(GET_REVIEW_KEY, message)
+        socketIOClient.sendEvent(SocketProperties.GET_REVIEW_KEY, message)
 }

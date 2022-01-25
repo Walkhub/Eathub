@@ -9,6 +9,7 @@ import com.eathub.eathub.domain.food.domain.Food
 import com.eathub.eathub.domain.food.exportmanager.FoodExportManager
 import com.eathub.eathub.domain.user.domain.User
 import com.eathub.eathub.domain.user.domain.exportmanager.UserExportManager
+import com.eathub.eathub.global.socket.property.SocketProperties
 import org.springframework.stereotype.Service
 
 @Service
@@ -18,10 +19,6 @@ class FoodApplicationService(
     private val foodExportManager: FoodExportManager,
     private val socketIOServer: SocketIOServer
 ) {
-
-    companion object {
-        const val FOOD_APPLICATION_KEY = "food.application"
-    }
 
     fun foodApplication(request: FoodApplicationRequest) {
         val user = userExportManager.findUserByName(request.userName)
@@ -63,6 +60,6 @@ class FoodApplicationService(
 
     private fun sendApplicationMessageToAllClients(message: FoodApplicationMessage) =
         socketIOServer.broadcastOperations
-            .sendEvent(FOOD_APPLICATION_KEY, message)
+            .sendEvent(SocketProperties.FOOD_APPLICATION_KEY, message)
 
 }

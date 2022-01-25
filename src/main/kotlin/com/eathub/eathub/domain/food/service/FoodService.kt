@@ -9,6 +9,7 @@ import com.eathub.eathub.domain.food.presentation.dto.*
 import com.eathub.eathub.domain.restaurant.domain.Restaurant
 import com.eathub.eathub.domain.restaurant.domain.exportmanager.RestaurantExportManager
 import com.eathub.eathub.domain.review.domain.Review
+import com.eathub.eathub.global.socket.property.SocketProperties
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,12 +21,6 @@ class FoodService(
     private val foodRepository: FoodRepository,
     private val restaurantExportManager: RestaurantExportManager
 ) {
-    companion object {
-        private const val CREATE_FOOD_KEY = "food.create"
-        private const val FOOD_LIST_KEY = "food.list"
-        private const val FOOD_INFO_KEY = "food.information"
-        private const val FOOD_INFO_ROOM_KEY = "food.room."
-    }
 
     fun createNewFood(request: CreateFoodRequest) {
         val restaurant = restaurantExportManager.findRestaurantById(request.restaurantId)
@@ -56,7 +51,7 @@ class FoodService(
 
     private fun sendCreateFoodMessageToAllClient(createFoodMessage: CreateFoodMessage) =
         socketIOServer.broadcastOperations
-            .sendEvent(CREATE_FOOD_KEY, createFoodMessage)
+            .sendEvent(SocketProperties.CREATE_FOOD_KEY, createFoodMessage)
 
     fun getFoodList(socketIOClient: SocketIOClient) {
         val foods = foodRepository.findAllBy()
@@ -80,7 +75,7 @@ class FoodService(
         )
 
     private fun sendFoodListToClient(foodMessages: FoodMessages, socketIOClient: SocketIOClient) =
-        socketIOClient.sendEvent(FOOD_LIST_KEY, foodMessages)
+        socketIOClient.sendEvent(SocketProperties.FOOD_LIST_KEY, foodMessages)
 
     fun getFoodInformation(request: FoodInformationRequest, socketIOClient: SocketIOClient) {
         val food = getFoodEntity(request.foodId)
@@ -103,7 +98,7 @@ class FoodService(
         foodRepository.findByIdOrNull(foodId) ?: throw FoodNotFoundException.EXCEPTION
 
     private fun sendFoodInformationToClient(foodInformation: FoodInformationMessage, socketIOClient: SocketIOClient) =
-        socketIOClient.sendEvent(FOOD_INFO_KEY, foodInformation)
+        socketIOClient.sendEvent(SocketProperties.FOOD_INFO_KEY, foodInformation)
 
     private fun joinFoodInformationRoom(socketIOClient: SocketIOClient, foodId: Long) =
         socketIOClient.joinRoom(getFoodRoomName(foodId))
@@ -115,5 +110,5 @@ class FoodService(
     private fun outRoom(socketIOClient: SocketIOClient, roomId: Long) =
         socketIOClient.leaveRoom(getFoodRoomName(roomId))
 
-    private fun getFoodRoomName(foodId: Long) = "$FOOD_INFO_ROOM_KEY$foodId"
+    private fun getFoodRoomName(foodId: Long) = "$SocketProperties.FOOD_INFO_ROOM_KEY$foodId"
 }
