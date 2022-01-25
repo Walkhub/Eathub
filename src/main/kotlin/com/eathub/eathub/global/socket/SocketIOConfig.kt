@@ -7,6 +7,7 @@ import com.corundumstudio.socketio.annotation.SpringAnnotationScanner
 import com.corundumstudio.socketio.protocol.JacksonJsonSupport
 import com.eathub.eathub.global.socket.error.SocketErrorController
 import com.eathub.eathub.global.socket.property.SocketProperties
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.kotlinModule
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
@@ -30,7 +31,7 @@ class SocketIOConfig(
             port = socketProperties.port
             origin = "*"
             exceptionListener = socketErrorController
-            jsonSupport = JacksonJsonSupport(kotlinModule())
+            jsonSupport = JacksonJsonSupport(kotlinModule(), JavaTimeModule())
         }
 
         return SocketIOServer(customConfig)
