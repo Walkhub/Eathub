@@ -11,11 +11,7 @@ import org.springframework.stereotype.Component
 class UserExportManager(
     private val userRepository: UserRepository
 ) {
-    fun findUserByName(name: String): User {
-        return userRepository.findByName(name) ?: throw UserNameNotFoundException.EXCEPTION
-    }
+    fun findUserByName(name: String): User =
+        userRepository.findByName(name) ?: throw UserNameNotFoundException.EXCEPTION
 
-    fun findUserById(id: Long): User {
-        return userRepository.findByIdOrNull(id) ?: throw UserIdNotFoundException.EXCEPTION
-    }
 }

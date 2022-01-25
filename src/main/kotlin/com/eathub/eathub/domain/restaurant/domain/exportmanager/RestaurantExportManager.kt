@@ -10,8 +10,7 @@ import org.springframework.stereotype.Component
 class RestaurantExportManager(
     private val restaurantRepository: RestaurantRepository
 ) {
-    fun findRestaurantById(id: Long): Restaurant {
-        return restaurantRepository.findByIdOrNull(id) ?: throw RestaurantNotFoundException.EXCEPTION
-    }
+    fun findRestaurantById(id: Long): Restaurant =
+        restaurantRepository.findByIdOrNull(id) ?: throw RestaurantNotFoundException.EXCEPTION
 
 }

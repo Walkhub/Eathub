@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component
 class FoodExportManager(
     private val foodRepository: FoodRepository
 ) {
-    fun findFoodById(id: Long): Food {
-        return foodRepository.findByIdOrNull(id) ?: throw FoodNotFoundException.EXCEPTION
-    }
+    fun findFoodById(id: Long): Food =
+        foodRepository.findByIdOrNull(id) ?: throw FoodNotFoundException.EXCEPTION
+
+    fun findFoodsByIds(ids: List<Long>) =
+        foodRepository.findAllByIdIn(ids)
 }
