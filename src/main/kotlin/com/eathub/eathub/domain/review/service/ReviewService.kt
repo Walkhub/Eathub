@@ -68,7 +68,8 @@ class ReviewService(
         )
 
     private fun sendCreateReviewMessageToAllClient(message: CreateReviewMessage) =
-        socketIOServer.broadcastOperations.sendEvent(SocketProperties.CREATE_REVIEW_KEY, message)
+        socketIOServer.getRoomOperations(SocketProperties.getFoodRoomName(message.foodId))
+            .sendEvent(SocketProperties.CREATE_REVIEW_KEY, message)
 
     fun getReviews(socketIOClient: SocketIOClient, request: GetReviewListRequest) {
         val reviews = findReviewsByFoodId(request.foodId)

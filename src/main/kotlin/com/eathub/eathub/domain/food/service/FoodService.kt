@@ -101,14 +101,12 @@ class FoodService(
         socketIOClient.sendEvent(SocketProperties.FOOD_INFO_KEY, foodInformation)
 
     private fun joinFoodInformationRoom(socketIOClient: SocketIOClient, foodId: Long) =
-        socketIOClient.joinRoom(getFoodRoomName(foodId))
+        socketIOClient.joinRoom(SocketProperties.getFoodRoomName(foodId))
 
     fun signOutRoom(socketIOClient: SocketIOClient, request: FoodSignOutRequest) {
         outRoom(socketIOClient, request.foodId)
     }
 
     private fun outRoom(socketIOClient: SocketIOClient, roomId: Long) =
-        socketIOClient.leaveRoom(getFoodRoomName(roomId))
-
-    private fun getFoodRoomName(foodId: Long) = "$SocketProperties.FOOD_INFO_ROOM_KEY$foodId"
+        socketIOClient.leaveRoom(SocketProperties.getFoodRoomName(roomId))
 }

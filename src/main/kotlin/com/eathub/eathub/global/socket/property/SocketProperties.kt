@@ -17,5 +17,6 @@ class SocketProperties(
         const val CREATE_REVIEW_KEY = "review.create"
         const val GET_REVIEW_KEY = "review.list"
         const val FOOD_APPLICATION_KEY = "food.application"
+        fun getFoodRoomName(foodId: Long) = "$SocketProperties.FOOD_INFO_ROOM_KEY$foodId"
     }
 }
