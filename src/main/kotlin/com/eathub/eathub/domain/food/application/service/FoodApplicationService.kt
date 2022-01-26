@@ -8,6 +8,7 @@ import com.eathub.eathub.domain.food.application.domain.repositories.FoodApplica
 import com.eathub.eathub.domain.food.application.presentation.dto.*
 import com.eathub.eathub.domain.food.exportmanager.FoodExportManager
 import com.eathub.eathub.domain.option.domain.exportmanager.OptionExportManager
+import com.eathub.eathub.domain.restaurant.domain.Restaurant
 import com.eathub.eathub.domain.user.domain.User
 import com.eathub.eathub.domain.user.domain.exportmanager.UserExportManager
 import com.eathub.eathub.global.socket.property.SocketProperties
@@ -87,12 +88,12 @@ class FoodApplicationService(
         foodApplicationRepository.findAllByApplicationDateBetween(request.startDate, request.endDate)
 
     private fun buildFoodApplicationMessages(foodApplications: List<FoodApplication>): FoodApplicationMessages {
-        val groupedApplications = foodApplications.groupBy { it.food.restaurant.name }
+        val groupedApplications = foodApplications.groupBy { it.food.restaurant }
 
         val applications = groupedApplications
-            .map { (restaurantName, applications) ->
+            .map { (restaurant, applications) ->
                 val foodApplicationMessages = getFoodApplicationMessageList(applications)
-                getFoodApplicationRestaurantMessage(restaurantName, foodApplicationMessages)
+                getFoodApplicationRestaurantMessage(restaurant, foodApplicationMessages)
             }
 
         return getFoodApplicationMessages(applications)
@@ -123,14 +124,15 @@ class FoodApplicationService(
         }
 
     private fun getFoodApplicationRestaurantMessage(
-        restaurantName: String,
+        restaurant: Restaurant,
         foodApplications: List<FoodApplicationMessage>
     ) =
         FoodApplicationRestaurantMessages(
-            restaurantName = restaurantName,
+            restaurantName = restaurant.name,
             applications = foodApplications,
             costSum = foodApplications.sumOf { it.cost },
             countSum = foodApplications.sumOf { it.count },
+            deliveryFee = restaurant.deliveryFee
         )
 
     private fun getFoodApplicationMessages(foodApplicationRestaurantMessages: List<FoodApplicationRestaurantMessages>) =
@@ -147,7 +149,11 @@ class FoodApplicationService(
     }
 
     private fun getMyFoodApplication(request: MyFoodApplicationRequest) =
-        foodApplicationRepository.findAllByApplicationDateBetweenAndUserName(request.startDate, request.endDate, request.userName)
+        foodApplicationRepository.findAllByApplicationDateBetweenAndUserName(
+            request.startDate,
+            request.endDate,
+            request.userName
+        )
 
     private fun buildMyApplicationMessages(applications: List<FoodApplication>): MyFoodApplicationMessages {
         val myFoodApplicationMessageList = applications.map { buildMyApplicationMessage(it) }
@@ -163,7 +169,10 @@ class FoodApplicationService(
             imageUrl = application.food.picture
         )
 
-    private fun sendMyFoodApplicationMessageToClient(socketIOClient: SocketIOClient, message: MyFoodApplicationMessages) =
+    private fun sendMyFoodApplicationMessageToClient(
+        socketIOClient: SocketIOClient,
+        message: MyFoodApplicationMessages
+    ) =
         socketIOClient.sendEvent(SocketProperties.FOOD_APPLICATION_MINE_KEY, message)
 
 }
