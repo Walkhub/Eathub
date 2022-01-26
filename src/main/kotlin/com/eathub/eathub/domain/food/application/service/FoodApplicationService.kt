@@ -27,7 +27,7 @@ class FoodApplicationService(
 
         val message = buildFoodApplicationMessages(user, foodApplications)
 
-        sendApplicationMessageToAllClients(message)
+        sendApplicationMessageToAllClient(message)
     }
 
     private fun buildFoodApplication(user: User, request: FoodApplicationRequest): List<FoodApplication> {
@@ -64,7 +64,7 @@ class FoodApplicationService(
             foodName = foodApplication.food.name
         )
 
-    private fun sendApplicationMessageToAllClients(message: FoodApplicationMessages) =
+    private fun sendApplicationMessageToAllClient(message: FoodApplicationMessages) =
         socketIOServer.broadcastOperations
             .sendEvent(SocketProperties.FOOD_APPLICATION_KEY, message)
 
