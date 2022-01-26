@@ -8,6 +8,6 @@ class OptionExportManager(
     private val optionRepository: OptionRepository
 ) {
 
-    fun findOptionsByIds(ids: List<Long>) =
-        optionRepository.findAllByIdIn(ids)
+    fun findOptionsByIds(ids: List<Long>, foodId: Long) =
+        optionRepository.findAllByIdInAndFoodId(ids, foodId)
 }

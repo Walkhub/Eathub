@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface OptionRepository : JpaRepository<Option, Long> {
     fun findAllByFoodId(id: Long): List<Option>
-    fun findAllByIdIn(ids: List<Long>): List<Option>
+    fun findAllByIdInAndFoodId(ids: List<Long>, foodId: Long): List<Option>
 }
