@@ -9,7 +9,9 @@ import com.eathub.eathub.domain.food.application.presentation.dto.*
 import com.eathub.eathub.domain.food.exportmanager.FoodExportManager
 import com.eathub.eathub.domain.option.domain.exportmanager.OptionExportManager
 import com.eathub.eathub.domain.restaurant.domain.Restaurant
+import com.eathub.eathub.domain.user.domain.ApplicationUser
 import com.eathub.eathub.domain.user.domain.User
+import com.eathub.eathub.domain.user.domain.exportmanager.ApplicationUserExportManager
 import com.eathub.eathub.domain.user.domain.exportmanager.UserExportManager
 import com.eathub.eathub.global.socket.property.SocketProperties
 import org.springframework.stereotype.Service
@@ -18,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class FoodApplicationService(
     private val foodApplicationRepository: FoodApplicationRepository,
-    private val userExportManager: UserExportManager,
+    private val applicationUserExportManager: ApplicationUserExportManager,
     private val foodExportManager: FoodExportManager,
     private val optionExportManager: OptionExportManager,
     private val socketIOServer: SocketIOServer
@@ -26,7 +28,7 @@ class FoodApplicationService(
 
     @Transactional
     fun createFoodApplication(request: FoodApplicationRequest) {
-        val user = userExportManager.findUserByName(request.userName)
+        val user = applicationUserExportManager.findByUserIdAndApplicationType(request.userName, request.applicationType)
         val foodApplication = buildFoodApplications(user, request)
         val foodApplications = foodApplicationRepository.saveAll(foodApplication)
 
@@ -35,13 +37,13 @@ class FoodApplicationService(
         sendApplicationMessageToAllClient(message)
     }
 
-    private fun buildFoodApplications(user: User, request: FoodApplicationRequest): List<FoodApplication> {
+    private fun buildFoodApplications(applicationUser: ApplicationUser, request: FoodApplicationRequest): List<FoodApplication> {
         foodExportManager.findFoodsByIds(request.foods.map { it.foodId })
 
         return request.foods.map {
             val foodApplication = FoodApplication(
                 food = foodExportManager.findFoodById(it.foodId),
-                user = user,
+                applicationUser = applicationUser,
                 count = it.count
             )
 
@@ -85,7 +87,7 @@ class FoodApplicationService(
     }
 
     private fun getApplications(request: GetFoodApplicationListRequest) =
-        foodApplicationRepository.findAllByApplicationDateBetween(request.startDate, request.endDate)
+        foodApplicationRepository.findAllByApplicationDateBetween(request.applicationType)
 
     private fun buildFoodApplicationMessages(foodApplications: List<FoodApplication>): FoodApplicationMessages {
         val groupedApplications = foodApplications.groupBy { it.food.restaurant }
@@ -150,8 +152,7 @@ class FoodApplicationService(
 
     private fun getMyFoodApplication(request: MyFoodApplicationRequest) =
         foodApplicationRepository.findAllByApplicationDateBetweenAndUserName(
-            request.startDate,
-            request.endDate,
+            request.applicationType,
             request.userName
         )
 
