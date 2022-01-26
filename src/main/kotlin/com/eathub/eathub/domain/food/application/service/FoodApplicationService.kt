@@ -4,8 +4,8 @@ import com.corundumstudio.socketio.SocketIOServer
 import com.eathub.eathub.domain.food.application.domain.FoodApplication
 import com.eathub.eathub.domain.food.application.domain.repositories.FoodApplicationRepository
 import com.eathub.eathub.domain.food.application.presentation.dto.FoodApplicationMessage
+import com.eathub.eathub.domain.food.application.presentation.dto.FoodApplicationMessages
 import com.eathub.eathub.domain.food.application.presentation.dto.FoodApplicationRequest
-import com.eathub.eathub.domain.food.domain.Food
 import com.eathub.eathub.domain.food.exportmanager.FoodExportManager
 import com.eathub.eathub.domain.user.domain.User
 import com.eathub.eathub.domain.user.domain.exportmanager.UserExportManager
@@ -22,43 +22,49 @@ class FoodApplicationService(
 
     fun foodApplication(request: FoodApplicationRequest) {
         val user = userExportManager.findUserByName(request.userName)
-        val food = foodExportManager.findFoodById(request.foodId)
+        val foodApplication = buildFoodApplication(user, request)
+        val foodApplications = foodApplicationRepository.saveAll(foodApplication)
 
-        val foodApplication = buildFoodApplication(food, user, request)
-
-        foodApplicationRepository.save(foodApplication)
-
-        val message = buildFoodApplicationMessage(food, user, foodApplication)
+        val message = buildFoodApplicationMessages(user, foodApplications)
 
         sendApplicationMessageToAllClients(message)
     }
 
-    private fun buildFoodApplication(food: Food, user: User, request: FoodApplicationRequest): FoodApplication {
-        return FoodApplication(
-            food = food,
-            user = user,
-            applicationType = request.applicationType,
-            count = request.count
-        )
+    private fun buildFoodApplication(user: User, request: FoodApplicationRequest): List<FoodApplication> {
+
+        foodExportManager.findFoodsByIds(request.foods.map { it.foodId })
+
+        return request.foods.map {
+            FoodApplication(
+                food = foodExportManager.findFoodById(it.foodId),
+                user = user,
+                applicationType = request.applicationType,
+                count = it.count
+            )
+        }
     }
 
-    private fun buildFoodApplicationMessage(
-        food: Food,
-        user: User,
-        foodApplication: FoodApplication
-    ): FoodApplicationMessage {
-        return FoodApplicationMessage(
-            foodId = food.id,
-            cost = food.cost,
-            imageUrl = food.picture,
-            foodName = food.name,
-            type = foodApplication.applicationType,
+    private fun buildFoodApplicationMessages(user: User, foodApplications: List<FoodApplication>): FoodApplicationMessages {
+        val foodApplicationsMessages = foodApplications.map { buildFoodApplicationMessage(it) }
+
+        return FoodApplicationMessages(
+            userName = user.name,
             userId = user.id,
-            userName = user.name
+            foodApplications = foodApplicationsMessages
         )
     }
 
-    private fun sendApplicationMessageToAllClients(message: FoodApplicationMessage) =
+    private fun buildFoodApplicationMessage(foodApplication: FoodApplication) =
+        FoodApplicationMessage(
+            imageUrl = foodApplication.food.picture,
+            cost = foodApplication.food.cost,
+            count = foodApplication.count,
+            type = foodApplication.applicationType,
+            foodId = foodApplication.food.id,
+            foodName = foodApplication.food.name
+        )
+
+    private fun sendApplicationMessageToAllClients(message: FoodApplicationMessages) =
         socketIOServer.broadcastOperations
             .sendEvent(SocketProperties.FOOD_APPLICATION_KEY, message)
 

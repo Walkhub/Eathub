@@ -2,12 +2,17 @@ package com.eathub.eathub.domain.food.application.presentation.dto
 
 import com.eathub.eathub.domain.food.application.domain.enums.ApplicationType
 
-class FoodApplicationMessage(
+class FoodApplicationMessages(
     val userName: String,
-    val foodName: String,
+    val userId: Long,
+    val foodApplications: List<FoodApplicationMessage>
+)
+
+class FoodApplicationMessage(
+    val imageUrl: String,
     val cost: Long,
     val type: ApplicationType,
-    val imageUrl: String,
-    val userId: Long,
-    val foodId: Long
+    val count: Int,
+    val foodId: Long,
+    val foodName: String
 )
