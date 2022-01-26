@@ -47,13 +47,6 @@ class OptionService(
         socketIOServer.getRoomOperations(getOptionRoomName(foodId))
             .sendEvent(SocketProperties.CREATE_OPTION_KEY, message)
 
-    fun joinOptionRoom(socketIOClient: SocketIOClient, request: JoinOptionRoomRequest) {
-        clientJoinOptionRoom(socketIOClient, request.foodId)
-    }
-
-    private fun clientJoinOptionRoom(socketIOClient: SocketIOClient, foodId: Long) =
-        socketIOClient.joinRoom(getOptionRoomName(foodId))
-
     private fun getOptionRoomName(foodId: Long) = SocketProperties.getOptionRoomName(foodId)
 
     fun getOptionList(socketIOClient: SocketIOClient, request: GetOptionListRequest) {
@@ -61,6 +54,7 @@ class OptionService(
         val message = buildGetOptionMessages(options)
 
         sendOptionMessagesToClient(socketIOClient, message)
+        clientJoinOptionRoom(socketIOClient, request.foodId)
     }
 
     private fun getOptions(foodId: Long) =
@@ -80,5 +74,8 @@ class OptionService(
 
     private fun sendOptionMessagesToClient(socketIOClient: SocketIOClient, message: GetOptionMessages) =
         socketIOClient.sendEvent(SocketProperties.OPTION_LIST_KEY, message)
+
+    private fun clientJoinOptionRoom(socketIOClient: SocketIOClient, foodId: Long) =
+        socketIOClient.joinRoom(getOptionRoomName(foodId))
 
 }
