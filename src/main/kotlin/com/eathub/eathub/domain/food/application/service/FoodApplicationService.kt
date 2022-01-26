@@ -108,7 +108,8 @@ class FoodApplicationService(
             count = foodApplication.count,
             foodId = foodApplication.food.id,
             foodName = foodApplication.food.name,
-            options = buildOptionApplicationMessage(foodApplication)
+            options = buildOptionApplicationMessage(foodApplication),
+            imageUrl = foodApplication.food.picture
         )
 
     private fun buildOptionApplicationMessage(foodApplication: FoodApplication) =

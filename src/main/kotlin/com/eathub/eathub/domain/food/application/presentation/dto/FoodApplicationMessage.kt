@@ -16,6 +16,7 @@ class FoodApplicationMessage(
     val count: Int,
     val foodId: Long,
     val foodName: String,
+    val imageUrl: String,
     val options: List<OptionsApplicationMessage>
 )
 
