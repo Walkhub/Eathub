@@ -8,7 +8,6 @@ import com.eathub.eathub.domain.food.exceptions.FoodNotFoundException
 import com.eathub.eathub.domain.food.presentation.dto.*
 import com.eathub.eathub.domain.restaurant.domain.Restaurant
 import com.eathub.eathub.domain.restaurant.domain.exportmanager.RestaurantExportManager
-import com.eathub.eathub.domain.review.domain.Review
 import com.eathub.eathub.global.socket.property.SocketProperties
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -71,8 +70,20 @@ class FoodService(
             foodCost = food.cost,
             foodPicture = food.picture,
             restaurantName = food.restaurant.name,
-            foodId = food.id
+            foodId = food.id,
+            foodScore = getFoodScoreFromFoods(food)
         )
+
+    private fun getFoodScoreFromFoods(food: Food): Double {
+        val average = food.review
+            .map { it.score }
+            .average()
+
+        return when (food.review.isNotEmpty()) {
+            true -> average
+            false -> 0.0
+        }
+    }
 
     private fun sendFoodListToClient(foodMessages: FoodMessages, socketIOClient: SocketIOClient) =
         socketIOClient.sendEvent(SocketProperties.FOOD_LIST_KEY, foodMessages)
