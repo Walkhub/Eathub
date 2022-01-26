@@ -1,6 +1,5 @@
 package com.eathub.eathub.domain.user.domain
 
-import com.eathub.eathub.domain.food.application.domain.FoodApplication
 import com.eathub.eathub.domain.review.domain.Review
 import javax.persistence.*
 import javax.validation.constraints.NotNull
@@ -12,10 +11,7 @@ class User(
     val name: String,
 
     @OneToMany(mappedBy = "user")
-    val review: List<Review> = mutableListOf(),
-
-    @OneToMany(mappedBy = "user")
-    val foodApplication: List<FoodApplication> = mutableListOf()
+    val review: List<Review> = mutableListOf()
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

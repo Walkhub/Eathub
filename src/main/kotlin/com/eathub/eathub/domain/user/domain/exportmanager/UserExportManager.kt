@@ -2,9 +2,7 @@ package com.eathub.eathub.domain.user.domain.exportmanager
 
 import com.eathub.eathub.domain.user.domain.User
 import com.eathub.eathub.domain.user.domain.repositories.UserRepository
-import com.eathub.eathub.domain.user.exceptions.UserIdNotFoundException
 import com.eathub.eathub.domain.user.exceptions.UserNameNotFoundException
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
 @Component
