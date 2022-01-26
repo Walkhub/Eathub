@@ -1,10 +1,10 @@
 package com.eathub.eathub.domain.food.application.service
 
+import com.corundumstudio.socketio.SocketIOClient
 import com.corundumstudio.socketio.SocketIOServer
 import com.eathub.eathub.domain.food.application.domain.FoodApplication
 import com.eathub.eathub.domain.food.application.domain.OptionApplication
 import com.eathub.eathub.domain.food.application.domain.repositories.FoodApplicationRepository
-import com.eathub.eathub.domain.food.application.domain.repositories.OptionApplicationRepository
 import com.eathub.eathub.domain.food.application.presentation.dto.*
 import com.eathub.eathub.domain.food.exportmanager.FoodExportManager
 import com.eathub.eathub.domain.option.domain.exportmanager.OptionExportManager
@@ -20,7 +20,6 @@ class FoodApplicationService(
     private val userExportManager: UserExportManager,
     private val foodExportManager: FoodExportManager,
     private val optionExportManager: OptionExportManager,
-    private val optionApplicationRepository: OptionApplicationRepository,
     private val socketIOServer: SocketIOServer
 ) {
 
@@ -67,7 +66,25 @@ class FoodApplicationService(
     }
 
     private fun getOptions(request: ApplicationRequest) =
-        optionExportManager.findOptionsByIds(request.optionIds)
+        optionExportManager.findOptionsByIds(request.optionIds, request.foodId)
+
+    private fun sendApplicationMessageToAllClient(message: FoodApplicationMessages) =
+        socketIOServer.broadcastOperations
+            .sendEvent(SocketProperties.FOOD_APPLICATION_KEY, message)
+
+//    private fun sendMoneyStatsToAllClient(message: FoodApplicationMessages) =
+//        socketIOServer.broadcastOperations
+//            .sendEvent(SocketProperties.FOOD_APPLICATION_KEY, message)
+
+    fun getApplicationList(socketIOClient: SocketIOClient, request: GetFoodApplicationListRequest) {
+        val applications = getApplications(request)
+        val message = buildFoodApplicationMessages(applications)
+
+        sendApplicationMessageToClient(socketIOClient, message)
+    }
+
+    private fun getApplications(request: GetFoodApplicationListRequest) =
+        foodApplicationRepository.findAllByApplicationDateBetween(request.startDate, request.endDate)
 
     private fun buildFoodApplicationMessages(foodApplications: List<FoodApplication>): FoodApplicationMessages {
         val groupedApplications = foodApplications.groupBy { it.food.restaurant.name }
@@ -112,18 +129,13 @@ class FoodApplicationService(
             restaurantName = restaurantName,
             applications = foodApplications,
             costSum = foodApplications.sumOf { it.cost },
-            countSum = foodApplications.size.toLong()
+            countSum = foodApplications.sumOf { it.count },
         )
 
     private fun getFoodApplicationMessages(foodApplicationRestaurantMessages: List<FoodApplicationRestaurantMessages>) =
         FoodApplicationMessages(foodApplicationRestaurantMessages)
 
-    private fun sendApplicationMessageToAllClient(message: FoodApplicationMessages) =
-        socketIOServer.broadcastOperations
-            .sendEvent(SocketProperties.FOOD_APPLICATION_KEY, message)
-
-//    private fun sendMoneyStatsToAllClient(message: FoodApplicationMessages) =
-//        socketIOServer.broadcastOperations
-//            .sendEvent(SocketProperties.FOOD_APPLICATION_KEY, message)
+    private fun sendApplicationMessageToClient(socketIOClient: SocketIOClient, message: FoodApplicationMessages) =
+        socketIOClient.sendEvent(SocketProperties.FOOD_APPLICATION_LIST_KEY, message)
 
 }
