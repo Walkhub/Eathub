@@ -11,5 +11,5 @@ class ApplicationUserId(
     val userId: Long,
 
     @Column
-    val applicationDate: ApplicationType
+    val applicationType: ApplicationType
 ) : Serializable
