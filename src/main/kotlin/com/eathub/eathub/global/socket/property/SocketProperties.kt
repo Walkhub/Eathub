@@ -13,6 +13,7 @@ class SocketProperties(
         private const val FOOD_INFO_ROOM_KEY = "food.room."
         private const val OPTION_ROOM_KEY = "option.room."
         const val CREATE_OPTION_KEY = "option.create"
+        const val OPTION_LIST_KEY = "option.list"
         const val CREATE_FOOD_KEY = "food.create"
         const val FOOD_LIST_KEY = "food.list"
         const val FOOD_INFO_KEY = "food.information"

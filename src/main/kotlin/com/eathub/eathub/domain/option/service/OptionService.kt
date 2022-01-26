@@ -5,9 +5,7 @@ import com.corundumstudio.socketio.SocketIOServer
 import com.eathub.eathub.domain.food.exportmanager.FoodExportManager
 import com.eathub.eathub.domain.option.domain.Option
 import com.eathub.eathub.domain.option.domain.repositories.OptionRepository
-import com.eathub.eathub.domain.option.presentation.dto.CreateOptionMessage
-import com.eathub.eathub.domain.option.presentation.dto.CreateOptionRequest
-import com.eathub.eathub.domain.option.presentation.dto.JoinOptionRoomRequest
+import com.eathub.eathub.domain.option.presentation.dto.*
 import com.eathub.eathub.global.socket.property.SocketProperties
 import org.springframework.stereotype.Service
 
@@ -50,12 +48,37 @@ class OptionService(
             .sendEvent(SocketProperties.CREATE_OPTION_KEY, message)
 
     fun joinOptionRoom(socketIOClient: SocketIOClient, request: JoinOptionRoomRequest) {
-        socketIOClient.joinRoom(getOptionRoomName(request.foodId))
+        clientJoinOptionRoom(socketIOClient, request.foodId)
     }
 
     private fun clientJoinOptionRoom(socketIOClient: SocketIOClient, foodId: Long) =
         socketIOClient.joinRoom(getOptionRoomName(foodId))
 
     private fun getOptionRoomName(foodId: Long) = SocketProperties.getOptionRoomName(foodId)
+
+    fun getOptionList(socketIOClient: SocketIOClient, request: GetOptionListRequest) {
+        val options = getOptions(request.foodId)
+        val message = buildGetOptionMessages(options)
+
+        sendOptionMessagesToClient(socketIOClient, message)
+    }
+
+    private fun getOptions(foodId: Long) =
+        optionRepository.findAllByFoodId(foodId)
+
+    private fun buildGetOptionMessages(options: List<Option>): GetOptionMessages {
+        val getOptionMessageList = options.map { buildGetOptionMessage(it) }
+        return GetOptionMessages(getOptionMessageList)
+    }
+
+    private fun buildGetOptionMessage(option: Option) =
+        GetOptionMessage(
+            optionCost = option.cost,
+            optionName = option.value,
+            optionId = option.id
+        )
+
+    private fun sendOptionMessagesToClient(socketIOClient: SocketIOClient, message: GetOptionMessages) =
+        socketIOClient.sendEvent(SocketProperties.OPTION_LIST_KEY, message)
 
 }
