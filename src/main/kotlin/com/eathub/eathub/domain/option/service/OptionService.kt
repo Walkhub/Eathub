@@ -1,11 +1,13 @@
 package com.eathub.eathub.domain.option.service
 
+import com.corundumstudio.socketio.SocketIOClient
 import com.corundumstudio.socketio.SocketIOServer
 import com.eathub.eathub.domain.food.exportmanager.FoodExportManager
 import com.eathub.eathub.domain.option.domain.Option
 import com.eathub.eathub.domain.option.domain.repositories.OptionRepository
 import com.eathub.eathub.domain.option.presentation.dto.CreateOptionMessage
 import com.eathub.eathub.domain.option.presentation.dto.CreateOptionRequest
+import com.eathub.eathub.domain.option.presentation.dto.JoinOptionRoomRequest
 import com.eathub.eathub.global.socket.property.SocketProperties
 import org.springframework.stereotype.Service
 
@@ -44,6 +46,16 @@ class OptionService(
         )
 
     private fun sendCreateOptionMessage(foodId: Long, message: CreateOptionMessage) =
-        socketIOServer.getRoomOperations(SocketProperties.getOptionRoomName(foodId))
+        socketIOServer.getRoomOperations(getOptionRoomName(foodId))
             .sendEvent(SocketProperties.CREATE_OPTION_KEY, message)
+
+    fun joinOptionRoom(socketIOClient: SocketIOClient, request: JoinOptionRoomRequest) {
+        socketIOClient.joinRoom(getOptionRoomName(request.foodId))
+    }
+
+    private fun clientJoinOptionRoom(socketIOClient: SocketIOClient, foodId: Long) =
+        socketIOClient.joinRoom(getOptionRoomName(foodId))
+
+    private fun getOptionRoomName(foodId: Long) = SocketProperties.getOptionRoomName(foodId)
+
 }
