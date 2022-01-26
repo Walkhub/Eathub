@@ -10,10 +10,13 @@ import com.eathub.eathub.domain.food.exportmanager.FoodExportManager
 import com.eathub.eathub.domain.option.domain.exportmanager.OptionExportManager
 import com.eathub.eathub.domain.restaurant.domain.Restaurant
 import com.eathub.eathub.domain.user.domain.ApplicationUser
+import com.eathub.eathub.domain.user.domain.enums.ApplicationType
 import com.eathub.eathub.domain.user.domain.exportmanager.ApplicationUserExportManager
+import com.eathub.eathub.global.facade.FoodStatsFacade
 import com.eathub.eathub.global.socket.property.SocketProperties
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 
 @Service
 class FoodApplicationService(
@@ -21,21 +24,27 @@ class FoodApplicationService(
     private val applicationUserExportManager: ApplicationUserExportManager,
     private val foodExportManager: FoodExportManager,
     private val optionExportManager: OptionExportManager,
+    private val foodStatsFacade: FoodStatsFacade,
     private val socketIOServer: SocketIOServer
 ) {
 
     @Transactional
     fun createFoodApplication(request: FoodApplicationRequest) {
-        val user = applicationUserExportManager.findByUserIdAndApplicationType(request.userName, request.applicationType)
+        val user =
+            applicationUserExportManager.findByUserIdAndApplicationType(request.userName, request.applicationType)
         val foodApplication = buildFoodApplications(user, request)
         val foodApplications = foodApplicationRepository.saveAll(foodApplication)
 
         val message = buildFoodApplicationMessages(foodApplications)
 
         sendApplicationMessageToAllClient(message)
+        sendStatsMessage(request.applicationType)
     }
 
-    private fun buildFoodApplications(applicationUser: ApplicationUser, request: FoodApplicationRequest): List<FoodApplication> {
+    private fun buildFoodApplications(
+        applicationUser: ApplicationUser,
+        request: FoodApplicationRequest
+    ): List<FoodApplication> {
         foodExportManager.findFoodsByIds(request.foods.map { it.foodId })
 
         return request.foods.map {
@@ -73,9 +82,6 @@ class FoodApplicationService(
         socketIOServer.broadcastOperations
             .sendEvent(SocketProperties.FOOD_APPLICATION_KEY, message)
 
-//    private fun sendMoneyStatsToAllClient(message: FoodApplicationMessages) =
-//        socketIOServer.broadcastOperations
-//            .sendEvent(SocketProperties.FOOD_APPLICATION_KEY, message)
 
     fun getApplicationList(socketIOClient: SocketIOClient, request: GetFoodApplicationListRequest) {
         val applications = getApplications(request)
@@ -85,7 +91,7 @@ class FoodApplicationService(
     }
 
     private fun getApplications(request: GetFoodApplicationListRequest) =
-        foodApplicationRepository.findAllByApplicationType(request.applicationType)
+        foodApplicationRepository.findAllByApplicationType(request.applicationType, LocalDate.now())
 
     private fun buildFoodApplicationMessages(foodApplications: List<FoodApplication>): FoodApplicationMessages {
         val groupedApplications = foodApplications.groupBy { it.food.restaurant }
@@ -141,6 +147,11 @@ class FoodApplicationService(
     private fun sendApplicationMessageToClient(socketIOClient: SocketIOClient, message: FoodApplicationMessages) =
         socketIOClient.sendEvent(SocketProperties.FOOD_APPLICATION_LIST_KEY, message)
 
+    private fun sendStatsMessage(applicationType: ApplicationType) {
+        val foodStats = foodStatsFacade.getFoodStats(applicationType)
+        foodStatsFacade.sendMoneyStatsToAllClient(foodStats)
+    }
+
     fun getMyFoodApplication(socketIOClient: SocketIOClient, request: MyFoodApplicationRequest) {
         val applications = getMyFoodApplication(request)
         val myFoodApplicationMessages = buildMyApplicationMessages(applications)
@@ -151,7 +162,8 @@ class FoodApplicationService(
     private fun getMyFoodApplication(request: MyFoodApplicationRequest) =
         foodApplicationRepository.findAllByApplicationTypeAndUserName(
             request.applicationType,
-            request.userName
+            request.userName,
+            LocalDate.now()
         )
 
     private fun buildMyApplicationMessages(applications: List<FoodApplication>): MyFoodApplicationMessages {

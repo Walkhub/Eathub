@@ -9,6 +9,7 @@ import com.eathub.eathub.domain.user.domain.exportmanager.UserExportManager
 import com.eathub.eathub.domain.user.domain.repositories.ApplicationUserRepository
 import com.eathub.eathub.domain.user.presentation.dto.UserApplicateMessage
 import com.eathub.eathub.domain.user.presentation.dto.UserApplicateRequest
+import com.eathub.eathub.global.facade.FoodStatsFacade
 import com.eathub.eathub.global.socket.property.SocketProperties
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional
 class ApplicationUserService(
     private val applicationUserRepository: ApplicationUserRepository,
     private val userExportManager: UserExportManager,
+    private val foodStatsFacade: FoodStatsFacade,
     private val socketIOServer: SocketIOServer
 ) {
     @Transactional
@@ -27,6 +29,7 @@ class ApplicationUserService(
 
         val applicateMessage = buildUserApplicateMessage(savedApplicationUser)
         sendApplicationUserMessageToAllClient(applicateMessage)
+        sendStatsMessage(request.applicationType)
     }
 
     private fun getUserByName(request: UserApplicateRequest) =
@@ -50,4 +53,9 @@ class ApplicationUserService(
     private fun sendApplicationUserMessageToAllClient(applicateMessage: UserApplicateMessage) =
         socketIOServer.broadcastOperations
             .sendEvent(SocketProperties.APPLICATE_USER_KEY, applicateMessage)
+
+    private fun sendStatsMessage(applicationType: ApplicationType) {
+        val foodStats = foodStatsFacade.getFoodStats(applicationType)
+        foodStatsFacade.sendMoneyStatsToAllClient(foodStats)
+    }
 }
