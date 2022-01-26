@@ -138,4 +138,31 @@ class FoodApplicationService(
     private fun sendApplicationMessageToClient(socketIOClient: SocketIOClient, message: FoodApplicationMessages) =
         socketIOClient.sendEvent(SocketProperties.FOOD_APPLICATION_LIST_KEY, message)
 
+    fun getMyFoodApplication(socketIOClient: SocketIOClient, request: MyFoodApplicationRequest) {
+        val applications = getMyFoodApplication(request)
+        val myFoodApplicationMessages = buildMyApplicationMessages(applications)
+
+        sendMyFoodApplicationMessageToClient(socketIOClient, myFoodApplicationMessages)
+    }
+
+    private fun getMyFoodApplication(request: MyFoodApplicationRequest) =
+        foodApplicationRepository.findAllByApplicationDateBetweenAndUserName(request.startDate, request.endDate, request.userName)
+
+    private fun buildMyApplicationMessages(applications: List<FoodApplication>): MyFoodApplicationMessages {
+        val myFoodApplicationMessageList = applications.map { buildMyApplicationMessage(it) }
+        return MyFoodApplicationMessages(myFoodApplicationMessageList)
+    }
+
+    private fun buildMyApplicationMessage(application: FoodApplication) =
+        MyFoodApplicationMessage(
+            restaurantName = application.food.restaurant.name,
+            cost = application.food.cost,
+            foodName = application.food.name,
+            foodId = application.food.id,
+            imageUrl = application.food.picture
+        )
+
+    private fun sendMyFoodApplicationMessageToClient(socketIOClient: SocketIOClient, message: MyFoodApplicationMessages) =
+        socketIOClient.sendEvent(SocketProperties.FOOD_APPLICATION_MINE_KEY, message)
+
 }

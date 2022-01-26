@@ -4,6 +4,7 @@ import com.corundumstudio.socketio.SocketIOClient
 import com.corundumstudio.socketio.annotation.OnEvent
 import com.eathub.eathub.domain.food.application.presentation.dto.FoodApplicationRequest
 import com.eathub.eathub.domain.food.application.presentation.dto.GetFoodApplicationListRequest
+import com.eathub.eathub.domain.food.application.presentation.dto.MyFoodApplicationRequest
 import com.eathub.eathub.domain.food.application.service.FoodApplicationService
 import org.springframework.web.bind.annotation.RestController
 
@@ -17,7 +18,12 @@ class FoodApplicationController(
     }
 
     @OnEvent("/food/application/list")
-    fun foodApplication(socketIOClient: SocketIOClient, request: GetFoodApplicationListRequest) {
+    fun foodApplicationList(socketIOClient: SocketIOClient, request: GetFoodApplicationListRequest) {
         foodApplicationService.getApplicationList(socketIOClient, request)
+    }
+
+    @OnEvent("/food/application/mine")
+    fun myFoodApplicationList(socketIOClient: SocketIOClient, request: MyFoodApplicationRequest) {
+        foodApplicationService.getMyFoodApplication(socketIOClient, request)
     }
 }
