@@ -10,9 +10,7 @@ import com.eathub.eathub.domain.food.exportmanager.FoodExportManager
 import com.eathub.eathub.domain.option.domain.exportmanager.OptionExportManager
 import com.eathub.eathub.domain.restaurant.domain.Restaurant
 import com.eathub.eathub.domain.user.domain.ApplicationUser
-import com.eathub.eathub.domain.user.domain.User
 import com.eathub.eathub.domain.user.domain.exportmanager.ApplicationUserExportManager
-import com.eathub.eathub.domain.user.domain.exportmanager.UserExportManager
 import com.eathub.eathub.global.socket.property.SocketProperties
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -87,7 +85,7 @@ class FoodApplicationService(
     }
 
     private fun getApplications(request: GetFoodApplicationListRequest) =
-        foodApplicationRepository.findAllByApplicationDateBetween(request.applicationType)
+        foodApplicationRepository.findAllByApplicationType(request.applicationType)
 
     private fun buildFoodApplicationMessages(foodApplications: List<FoodApplication>): FoodApplicationMessages {
         val groupedApplications = foodApplications.groupBy { it.food.restaurant }
@@ -151,7 +149,7 @@ class FoodApplicationService(
     }
 
     private fun getMyFoodApplication(request: MyFoodApplicationRequest) =
-        foodApplicationRepository.findAllByApplicationDateBetweenAndUserName(
+        foodApplicationRepository.findAllByApplicationTypeAndUserName(
             request.applicationType,
             request.userName
         )

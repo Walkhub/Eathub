@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface ApplicationUserRepository : JpaRepository<ApplicationUser, ApplicationUserId> {
-    fun findByUserNameAndApplicationType(userName: String, applicationType: ApplicationType): ApplicationUser?
+    fun findByUserNameAndIdApplicationType(userName: String, applicationType: ApplicationType): ApplicationUser?
 }
