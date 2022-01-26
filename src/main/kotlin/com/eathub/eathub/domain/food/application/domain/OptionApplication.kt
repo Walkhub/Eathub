@@ -1,6 +1,6 @@
-package com.eathub.eathub.domain.option.domain
+package com.eathub.eathub.domain.food.application.domain
 
-import com.eathub.eathub.domain.food.application.domain.FoodApplication
+import com.eathub.eathub.domain.option.domain.Option
 import javax.persistence.*
 
 @Entity

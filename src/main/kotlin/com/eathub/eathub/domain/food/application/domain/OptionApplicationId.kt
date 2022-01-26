@@ -1,4 +1,4 @@
-package com.eathub.eathub.domain.option.domain
+package com.eathub.eathub.domain.food.application.domain
 
 import javax.persistence.Column
 import javax.persistence.Embeddable
