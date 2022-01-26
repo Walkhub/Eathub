@@ -45,7 +45,7 @@ class OptionService(
 
     private fun sendCreateOptionMessage(foodId: Long, message: CreateOptionMessage) =
         socketIOServer.getRoomOperations(getOptionRoomName(foodId))
-            .sendEvent(SocketProperties.CREATE_OPTION_KEY, message)
+            .sendEvent(SocketProperties.getOptionResponseKey(foodId), message)
 
     private fun getOptionRoomName(foodId: Long) = SocketProperties.getOptionRoomName(foodId)
 
