@@ -23,6 +23,7 @@ class SocketProperties(
         const val FOOD_APPLICATION_LIST_KEY = "food.application.list"
         const val FOOD_APPLICATION_MINE_KEY = "food.application.my"
         const val APPLICATE_USER_KEY = "user.application"
+        const val MONEY_KEY = "money"
         fun getFoodRoomName(foodId: Long) = "$FOOD_INFO_ROOM_KEY$foodId"
         fun getOptionRoomName(foodId: Long) = "$OPTION_ROOM_KEY$foodId"
         fun getOptionResponseKey(foodId: Long) = "$CREATE_OPTION_KEY$foodId"
