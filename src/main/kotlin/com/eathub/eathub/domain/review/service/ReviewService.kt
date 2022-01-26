@@ -49,7 +49,7 @@ class ReviewService(
     }
 
     private fun saveReview(review: Review) = try {
-        reviewRepository.save(review)
+        reviewRepository.saveAndFlush(review)
     } catch (e: SQLIntegrityConstraintViolationException) {
         throw ReviewAlreadyWroteException.EXCEPTION
     }
