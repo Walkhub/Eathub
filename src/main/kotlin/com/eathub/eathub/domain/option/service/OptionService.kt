@@ -20,14 +20,15 @@ class OptionService(
         val savedOption = saveOption(option)
 
         val message = buildCreateOptionMessage(savedOption)
-        sendCreateOptionMessage(message)
+        sendCreateOptionMessage(request.foodId, message)
     }
 
     private fun buildOption(request: CreateOptionRequest): Option {
         val food = findFoodById(request.foodId)
         return Option(
             value = request.optionName,
-            food = food
+            food = food,
+            cost = request.optionCost
         )
     }
 
@@ -38,10 +39,11 @@ class OptionService(
     private fun buildCreateOptionMessage(option: Option) =
         CreateOptionMessage(
             optionId = option.id,
-            optionName = option.value
+            optionName = option.value,
+            optionCost = option.cost
         )
 
-    private fun sendCreateOptionMessage(message: CreateOptionMessage) =
-        socketIOServer.getRoomOperations(SocketProperties.getOptionRoomName(message.optionId))
+    private fun sendCreateOptionMessage(foodId: Long, message: CreateOptionMessage) =
+        socketIOServer.getRoomOperations(SocketProperties.getOptionRoomName(foodId))
             .sendEvent(SocketProperties.CREATE_OPTION_KEY, message)
 }

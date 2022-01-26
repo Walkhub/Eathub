@@ -9,6 +9,9 @@ class Option(
     @NotNull
     val value: String,
 
+    @NotNull
+    val cost: Long,
+
     @ManyToOne(fetch = FetchType.LAZY)
     val food: Food
 ) {

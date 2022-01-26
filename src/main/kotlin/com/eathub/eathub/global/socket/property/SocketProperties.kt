@@ -20,6 +20,6 @@ class SocketProperties(
         const val GET_REVIEW_KEY = "review.list"
         const val FOOD_APPLICATION_KEY = "food.application"
         fun getFoodRoomName(foodId: Long) = "$FOOD_INFO_ROOM_KEY$foodId"
-        fun getOptionRoomName(optionId: Long) = "$OPTION_ROOM_KEY$optionId"
+        fun getOptionRoomName(foodId: Long) = "$OPTION_ROOM_KEY$foodId"
     }
 }
