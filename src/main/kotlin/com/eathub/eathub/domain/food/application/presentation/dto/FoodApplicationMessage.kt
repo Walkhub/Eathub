@@ -1,18 +1,26 @@
 package com.eathub.eathub.domain.food.application.presentation.dto
 
-import com.eathub.eathub.domain.food.application.domain.enums.ApplicationType
-
 class FoodApplicationMessages(
-    val userName: String,
-    val userId: Long,
-    val foodApplications: List<FoodApplicationMessage>
+    val foodApplications: List<FoodApplicationRestaurantMessages>
+)
+
+class FoodApplicationRestaurantMessages(
+    val countSum: Long,
+    val costSum: Long,
+    val restaurantName: String,
+    val applications: List<FoodApplicationMessage>
 )
 
 class FoodApplicationMessage(
-    val imageUrl: String,
     val cost: Long,
-    val type: ApplicationType,
     val count: Int,
     val foodId: Long,
-    val foodName: String
+    val foodName: String,
+    val options: List<OptionsApplicationMessage>
+)
+
+class OptionsApplicationMessage(
+    val optionId: Long,
+    val optionName: String,
+    val optionCost: Long
 )
