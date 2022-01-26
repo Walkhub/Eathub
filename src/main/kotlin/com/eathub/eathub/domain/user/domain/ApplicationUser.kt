@@ -5,12 +5,12 @@ import javax.persistence.*
 
 @Entity
 class ApplicationUser(
+    @EmbeddedId
+    val id: ApplicationUserId,
+
     @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)
     val user: User,
-
-    @EmbeddedId
-    val id: ApplicationUserId,
 
     @OneToMany(mappedBy = "applicationUser")
     val foodApplication: List<FoodApplication> = mutableListOf()
