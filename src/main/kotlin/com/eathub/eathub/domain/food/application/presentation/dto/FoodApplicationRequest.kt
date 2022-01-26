@@ -10,5 +10,6 @@ class FoodApplicationRequest(
 
 class ApplicationFoodRequest(
     val foodId: Long,
-    val count: Int
+    val count: Int,
+    val optionIds: List<Long>
 )

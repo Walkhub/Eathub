@@ -13,6 +13,7 @@ class Option(
     val cost: Long,
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "food_id")
     val food: Food
 ) {
     @Id

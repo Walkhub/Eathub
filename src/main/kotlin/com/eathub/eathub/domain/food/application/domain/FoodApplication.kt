@@ -18,18 +18,19 @@ class FoodApplication(
 
     val count: Int,
 
-    @MapsId("foodId")
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "food_id")
     val food: Food,
 
-    @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     val user: User
 ) {
     @CreatedDate
     @NotNull
     lateinit var applicationDate: LocalDate
 
-    @EmbeddedId
-    val foodApplicationId: FoodApplicationId = FoodApplicationId(food.id, user.id)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0
 }

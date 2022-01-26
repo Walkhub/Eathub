@@ -11,6 +11,6 @@ class FoodApplicationController(
 ) {
     @OnEvent("/food/application")
     fun foodApplication(request: FoodApplicationRequest) {
-        foodApplicationService.foodApplication(request)
+        foodApplicationService.createFoodApplication(request)
     }
 }
