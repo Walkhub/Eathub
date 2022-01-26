@@ -5,10 +5,7 @@ import com.eathub.eathub.domain.food.application.domain.FoodApplication
 import com.eathub.eathub.domain.food.application.domain.OptionApplication
 import com.eathub.eathub.domain.food.application.domain.repositories.FoodApplicationRepository
 import com.eathub.eathub.domain.food.application.domain.repositories.OptionApplicationRepository
-import com.eathub.eathub.domain.food.application.presentation.dto.ApplicationRequest
-import com.eathub.eathub.domain.food.application.presentation.dto.FoodApplicationMessage
-import com.eathub.eathub.domain.food.application.presentation.dto.FoodApplicationMessages
-import com.eathub.eathub.domain.food.application.presentation.dto.FoodApplicationRequest
+import com.eathub.eathub.domain.food.application.presentation.dto.*
 import com.eathub.eathub.domain.food.exportmanager.FoodExportManager
 import com.eathub.eathub.domain.option.domain.exportmanager.OptionExportManager
 import com.eathub.eathub.domain.user.domain.User
@@ -33,7 +30,7 @@ class FoodApplicationService(
         val foodApplication = buildFoodApplications(user, request)
         val foodApplications = foodApplicationRepository.saveAll(foodApplication)
 
-        val message = buildFoodApplicationMessages(user, foodApplications)
+        val message = buildFoodApplicationMessages(foodApplications)
 
         sendApplicationMessageToAllClient(message)
     }
@@ -45,7 +42,6 @@ class FoodApplicationService(
             val foodApplication = FoodApplication(
                 food = foodExportManager.findFoodById(it.foodId),
                 user = user,
-                applicationType = request.applicationType,
                 count = it.count
             )
 
@@ -73,31 +69,61 @@ class FoodApplicationService(
     private fun getOptions(request: ApplicationRequest) =
         optionExportManager.findOptionsByIds(request.optionIds)
 
-    private fun buildFoodApplicationMessages(
-        user: User,
-        foodApplications: List<FoodApplication>
-    ): FoodApplicationMessages {
-        val foodApplicationsMessages = foodApplications.map { buildFoodApplicationMessage(it) }
+    private fun buildFoodApplicationMessages(foodApplications: List<FoodApplication>): FoodApplicationMessages {
+        val groupedApplications = foodApplications.groupBy { it.food.restaurant.name }
 
-        return FoodApplicationMessages(
-            userName = user.name,
-            userId = user.id,
-            foodApplications = foodApplicationsMessages
-        )
+        val applications = groupedApplications
+            .map { (restaurantName, applications) ->
+                val foodApplicationMessages = getFoodApplicationMessageList(applications)
+                getFoodApplicationRestaurantMessage(restaurantName, foodApplicationMessages)
+            }
+
+        return getFoodApplicationMessages(applications)
+
     }
+
+    private fun getFoodApplicationMessageList(foodApplications: List<FoodApplication>) =
+        foodApplications.map { buildFoodApplicationMessage(it) }
 
     private fun buildFoodApplicationMessage(foodApplication: FoodApplication) =
         FoodApplicationMessage(
-            imageUrl = foodApplication.food.picture,
             cost = foodApplication.food.cost,
             count = foodApplication.count,
-            type = foodApplication.applicationType,
             foodId = foodApplication.food.id,
-            foodName = foodApplication.food.name
+            foodName = foodApplication.food.name,
+            options = buildOptionApplicationMessage(foodApplication)
         )
+
+    private fun buildOptionApplicationMessage(foodApplication: FoodApplication) =
+        foodApplication.optionApplication.map {
+            val option = it.option
+            OptionsApplicationMessage(
+                optionId = option.id,
+                optionName = option.value,
+                optionCost = option.cost
+            )
+        }
+
+    private fun getFoodApplicationRestaurantMessage(
+        restaurantName: String,
+        foodApplications: List<FoodApplicationMessage>
+    ) =
+        FoodApplicationRestaurantMessages(
+            restaurantName = restaurantName,
+            applications = foodApplications,
+            costSum = foodApplications.sumOf { it.cost },
+            countSum = foodApplications.size.toLong()
+        )
+
+    private fun getFoodApplicationMessages(foodApplicationRestaurantMessages: List<FoodApplicationRestaurantMessages>) =
+        FoodApplicationMessages(foodApplicationRestaurantMessages)
 
     private fun sendApplicationMessageToAllClient(message: FoodApplicationMessages) =
         socketIOServer.broadcastOperations
             .sendEvent(SocketProperties.FOOD_APPLICATION_KEY, message)
+
+//    private fun sendMoneyStatsToAllClient(message: FoodApplicationMessages) =
+//        socketIOServer.broadcastOperations
+//            .sendEvent(SocketProperties.FOOD_APPLICATION_KEY, message)
 
 }
