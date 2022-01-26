@@ -24,7 +24,10 @@ class FoodApplication(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    val user: User
+    val user: User,
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "foodApplication", cascade = [CascadeType.PERSIST])
+    val optionApplication: MutableList<OptionApplication> = mutableListOf()
 ) {
     @CreatedDate
     @NotNull
@@ -33,4 +36,8 @@ class FoodApplication(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0
+
+    fun addOptionApplication(optionApplication: OptionApplication) {
+        this.optionApplication.add(optionApplication)
+    }
 }

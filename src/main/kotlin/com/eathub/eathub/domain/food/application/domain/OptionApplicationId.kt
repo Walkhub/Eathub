@@ -1,13 +1,14 @@
 package com.eathub.eathub.domain.food.application.domain
 
+import java.io.Serializable
 import javax.persistence.Column
 import javax.persistence.Embeddable
 
 @Embeddable
 class OptionApplicationId(
     @Column
-    val option_id: Long,
+    val optionId: Long,
 
     @Column
-    val food_application_id: Long
-)
+    val foodApplicationId: Long
+) : Serializable

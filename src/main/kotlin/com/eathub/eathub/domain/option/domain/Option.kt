@@ -5,6 +5,7 @@ import javax.persistence.*
 import javax.validation.constraints.NotNull
 
 @Entity
+@Table(name = "option_name")
 class Option(
     @NotNull
     val value: String,
