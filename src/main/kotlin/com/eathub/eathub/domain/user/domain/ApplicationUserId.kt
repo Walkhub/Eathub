@@ -2,6 +2,7 @@ package com.eathub.eathub.domain.user.domain
 
 import com.eathub.eathub.domain.user.domain.enums.ApplicationType
 import java.io.Serializable
+import java.time.LocalDate
 import javax.persistence.Column
 import javax.persistence.Embeddable
 
@@ -11,5 +12,8 @@ class ApplicationUserId(
     val userId: Long,
 
     @Column
-    val applicationType: ApplicationType
+    val applicationType: ApplicationType,
+
+    @Column
+    val applicationDate: LocalDate = LocalDate.now()
 ) : Serializable

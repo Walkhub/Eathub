@@ -15,7 +15,8 @@ class FoodApplication(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns(
         JoinColumn(name = "user_id"),
-        JoinColumn(name = "application_type")
+        JoinColumn(name = "application_type"),
+        JoinColumn(name = "application_date")
     )
     val applicationUser: ApplicationUser,
 
