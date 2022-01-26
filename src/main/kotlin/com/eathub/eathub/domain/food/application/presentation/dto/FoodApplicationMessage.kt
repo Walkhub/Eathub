@@ -5,7 +5,7 @@ class FoodApplicationMessages(
 )
 
 class FoodApplicationRestaurantMessages(
-    val countSum: Long,
+    val countSum: Int,
     val costSum: Long,
     val restaurantName: String,
     val applications: List<FoodApplicationMessage>
