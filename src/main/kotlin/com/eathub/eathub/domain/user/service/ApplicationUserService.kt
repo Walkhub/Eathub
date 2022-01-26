@@ -11,6 +11,7 @@ import com.eathub.eathub.domain.user.presentation.dto.UserApplicateMessage
 import com.eathub.eathub.domain.user.presentation.dto.UserApplicateRequest
 import com.eathub.eathub.global.socket.property.SocketProperties
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class ApplicationUserService(
@@ -18,6 +19,7 @@ class ApplicationUserService(
     private val userExportManager: UserExportManager,
     private val socketIOServer: SocketIOServer
 ) {
+    @Transactional
     fun applicateUser(request: UserApplicateRequest) {
         val user = getUserByName(request)
         val applicationUser = buildApplicationUser(user, request.applicationType)
