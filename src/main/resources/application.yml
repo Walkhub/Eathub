@@ -6,7 +6,7 @@ spring:
     url: ${DB_URL}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     database: mysql
     open-in-view: false
 

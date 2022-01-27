@@ -7,6 +7,7 @@ import com.eathub.eathub.domain.user.domain.User
 import com.eathub.eathub.domain.user.domain.enums.ApplicationType
 import com.eathub.eathub.domain.user.domain.exportmanager.UserExportManager
 import com.eathub.eathub.domain.user.domain.repositories.ApplicationUserRepository
+import com.eathub.eathub.domain.user.presentation.dto.GetFoodStatsRequest
 import com.eathub.eathub.domain.user.presentation.dto.UserApplicateMessage
 import com.eathub.eathub.domain.user.presentation.dto.UserApplicateRequest
 import com.eathub.eathub.global.facade.FoodStatsFacade
@@ -29,6 +30,11 @@ class ApplicationUserService(
 
         val applicateMessage = buildUserApplicateMessage(savedApplicationUser)
         sendApplicationUserMessageToAllClient(applicateMessage)
+        sendStatsMessage(request.applicationType, request.userName)
+    }
+
+    @Transactional
+    fun getFoodStats(request: GetFoodStatsRequest) {
         sendStatsMessage(request.applicationType, request.userName)
     }
 
