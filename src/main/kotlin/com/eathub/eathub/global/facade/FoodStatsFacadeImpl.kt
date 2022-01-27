@@ -2,6 +2,7 @@ package com.eathub.eathub.global.facade
 
 import com.corundumstudio.socketio.SocketIOServer
 import com.eathub.eathub.domain.food.application.domain.FoodApplication
+import com.eathub.eathub.domain.food.application.domain.OptionApplication
 import com.eathub.eathub.domain.food.application.presentation.dto.FoodStatsMessage
 import com.eathub.eathub.domain.user.domain.ApplicationUser
 import com.eathub.eathub.domain.user.domain.enums.ApplicationType
@@ -9,7 +10,6 @@ import com.eathub.eathub.domain.user.domain.repositories.ApplicationUserReposito
 import com.eathub.eathub.global.socket.property.SocketProperties
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import java.lang.ArithmeticException
 import java.time.LocalDate
 
 @Component
@@ -26,8 +26,11 @@ class FoodStatsFacadeImpl(
     override fun getFoodStats(applicationType: ApplicationType): FoodStatsMessage {
         val applicationUsers = getApplicationUsers(applicationType)
         val usedAmount = getUsedAmount(applicationUsers)
-        val amountPerPerson = getAmountPerPerson(applicationUsers)
-        val remainedAmount = getRemainedAmount(usedAmount)
+        val deliveryFee = getTotalDeliveryFee(applicationUsers)
+        val amountCanUse = getAmountCanUse(applicationUsers)
+        val amountPerPerson = getAmountPerPerson(amountCanUse, applicationType)
+        val remainedAmount =
+            getRemainedAmountFromAmountCanUseAndDeliveryFeeAndUsedAmount(amountCanUse, deliveryFee, usedAmount)
 
         return buildFoodStatsMessage(
             usedAmount = usedAmount,
@@ -43,23 +46,35 @@ class FoodStatsFacadeImpl(
         applicationUsers.sumOf { getSumOfAmountFromFoodApplications(it.foodApplication) }
 
     private fun getSumOfAmountFromFoodApplications(foodApplication: List<FoodApplication>): Long {
-        return foodApplication.sumOf { it.food.cost } + getTotalDeliveryFee(foodApplication)
+        return foodApplication.sumOf { it.food.cost } + foodApplication.sumOf { getSumOfAmountFromOptionApplications(it.optionApplication) }
     }
 
-    private fun getTotalDeliveryFee(foodApplication: List<FoodApplication>) =
-        foodApplication.sumOf { it.food.restaurant.deliveryFee }
+    private fun getSumOfAmountFromOptionApplications(optionApplication: List<OptionApplication>) =
+        optionApplication.sumOf { it.option.cost }
 
-    private fun getAmountPerPerson(applicationUsers: List<ApplicationUser>) =
+    private fun getAmountPerPerson(amountCanUse: Long, applicationType: ApplicationType) =
         try {
-            TOTAL_AMOUNT.div(applicationUsers.size)
+            val applicationUserCount =
+                applicationUserRepository.countByIdApplicationDateAndIdApplicationType(LocalDate.now(), applicationType)
+            amountCanUse.div(applicationUserCount)
         } catch (e: ArithmeticException) {
-            TOTAL_AMOUNT
+            amountCanUse
         }
 
-    private fun getRemainedAmount(usedAmount: Long) =
-        TOTAL_AMOUNT - usedAmount
+    private fun getAmountCanUse(applicationUsers: List<ApplicationUser>) =
+        TOTAL_AMOUNT - getTotalDeliveryFee(applicationUsers)
 
-    private fun buildFoodStatsMessage(usedAmount: Long, amountPerPerson: Int, remainedAmount: Long) =
+    private fun getRemainedAmountFromAmountCanUseAndDeliveryFeeAndUsedAmount(
+        amountCanUse: Long,
+        deliveryFee: Long,
+        usedAmount: Long
+    ) =
+        amountCanUse - deliveryFee - usedAmount
+
+    private fun getTotalDeliveryFee(applicationUsers: List<ApplicationUser>) =
+        applicationUsers.sumOf { applicationUser -> applicationUser.foodApplication.sumOf { it.food.restaurant.deliveryFee } }
+
+    private fun buildFoodStatsMessage(usedAmount: Long, amountPerPerson: Long, remainedAmount: Long) =
         FoodStatsMessage(
             usedAmount = usedAmount,
             amountPerPerson = amountPerPerson,

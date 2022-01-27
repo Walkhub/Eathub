@@ -18,4 +18,6 @@ interface ApplicationUserRepository : JpaRepository<ApplicationUser, Application
         @Param("date") date: LocalDate,
         @Param("type") applicationType: ApplicationType
     ): List<ApplicationUser>
+
+    fun countByIdApplicationDateAndIdApplicationType(applicationDate: LocalDate, applicationType: ApplicationType): Int
 }
