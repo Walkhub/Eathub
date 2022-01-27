@@ -26,11 +26,10 @@ class FoodStatsFacadeImpl(
     override fun getFoodStats(applicationType: ApplicationType): FoodStatsMessage {
         val applicationUsers = getApplicationUsers(applicationType)
         val usedAmount = getUsedAmount(applicationUsers)
-        val deliveryFee = getTotalDeliveryFee(applicationUsers)
         val amountCanUse = getAmountCanUse(applicationUsers)
         val amountPerPerson = getAmountPerPerson(amountCanUse, applicationType)
         val remainedAmount =
-            getRemainedAmountFromAmountCanUseAndDeliveryFeeAndUsedAmount(amountCanUse, deliveryFee, usedAmount)
+            getRemainedAmountFromAmountCanUseAndDeliveryFeeAndUsedAmount(amountCanUse, usedAmount)
 
         return buildFoodStatsMessage(
             usedAmount = usedAmount,
@@ -66,10 +65,8 @@ class FoodStatsFacadeImpl(
 
     private fun getRemainedAmountFromAmountCanUseAndDeliveryFeeAndUsedAmount(
         amountCanUse: Long,
-        deliveryFee: Long,
         usedAmount: Long
-    ) =
-        amountCanUse - deliveryFee - usedAmount
+    ) = amountCanUse - usedAmount
 
     private fun getTotalDeliveryFee(applicationUsers: List<ApplicationUser>) =
         applicationUsers.sumOf { applicationUser -> applicationUser.foodApplication.sumOf { it.food.restaurant.deliveryFee } }
