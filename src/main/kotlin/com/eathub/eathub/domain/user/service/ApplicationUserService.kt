@@ -7,13 +7,16 @@ import com.eathub.eathub.domain.user.domain.User
 import com.eathub.eathub.domain.user.domain.enums.ApplicationType
 import com.eathub.eathub.domain.user.domain.exportmanager.UserExportManager
 import com.eathub.eathub.domain.user.domain.repositories.ApplicationUserRepository
+import com.eathub.eathub.domain.user.exceptions.UserNameNotFoundException
 import com.eathub.eathub.domain.user.presentation.dto.GetFoodStatsRequest
 import com.eathub.eathub.domain.user.presentation.dto.UserApplicateMessage
 import com.eathub.eathub.domain.user.presentation.dto.UserApplicateRequest
 import com.eathub.eathub.global.facade.FoodStatsFacade
 import com.eathub.eathub.global.socket.property.SocketProperties
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 
 @Service
 class ApplicationUserService(
@@ -25,6 +28,10 @@ class ApplicationUserService(
     @Transactional
     fun applicateUser(request: UserApplicateRequest) {
         val user = getUserByName(request)
+        applicationUserRepository.findByIdOrNull(ApplicationUserId(user.id, request.applicationType, LocalDate.now()))?.let {
+            throw UserNameNotFoundException.EXCEPTION
+        }
+
         val applicationUser = buildApplicationUser(user, request.applicationType)
         val savedApplicationUser = saveApplicationUser(applicationUser)
 
