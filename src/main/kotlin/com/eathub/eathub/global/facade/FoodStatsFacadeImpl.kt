@@ -52,7 +52,7 @@ class FoodStatsFacadeImpl(
         applicationUsers.sumOf { getSumOfAmountFromFoodApplications(it.foodApplication) }
 
     private fun getSumOfAmountFromFoodApplications(foodApplication: List<FoodApplication>): Long {
-        return foodApplication.sumOf { it.food.cost } + foodApplication.sumOf { getSumOfAmountFromOptionApplications(it.optionApplication) }
+        return foodApplication.sumOf { it.food.cost * it.count } + foodApplication.sumOf { getSumOfAmountFromOptionApplications(it.optionApplication) }
     }
 
     private fun getSumOfAmountFromOptionApplications(optionApplication: List<OptionApplication>) =
