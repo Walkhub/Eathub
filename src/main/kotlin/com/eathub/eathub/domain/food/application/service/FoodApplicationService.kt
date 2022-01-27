@@ -184,6 +184,6 @@ class FoodApplicationService(
         socketIOClient: SocketIOClient,
         message: MyFoodApplicationMessages
     ) =
-        socketIOClient.sendEvent(SocketProperties.MONEY_KEY, message)
+        socketIOClient.sendEvent(SocketProperties.FOOD_APPLICATION_MINE_KEY, message)
 
 }

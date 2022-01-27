@@ -8,6 +8,8 @@ import com.eathub.eathub.domain.user.domain.enums.ApplicationType
 import com.eathub.eathub.domain.user.domain.repositories.ApplicationUserRepository
 import com.eathub.eathub.global.socket.property.SocketProperties
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
+import java.lang.ArithmeticException
 import java.time.LocalDate
 
 @Component
@@ -20,6 +22,7 @@ class FoodStatsFacadeImpl(
         const val TOTAL_AMOUNT = 136000
     }
 
+    @Transactional
     override fun getFoodStats(applicationType: ApplicationType): FoodStatsMessage {
         val applicationUsers = getApplicationUsers(applicationType)
         val usedAmount = getUsedAmount(applicationUsers)
@@ -47,7 +50,11 @@ class FoodStatsFacadeImpl(
         foodApplication.sumOf { it.food.restaurant.deliveryFee }
 
     private fun getAmountPerPerson(applicationUsers: List<ApplicationUser>) =
-        TOTAL_AMOUNT / applicationUsers.size
+        try {
+            TOTAL_AMOUNT.div(applicationUsers.size)
+        } catch (e: ArithmeticException) {
+            TOTAL_AMOUNT
+        }
 
     private fun getRemainedAmount(usedAmount: Long) =
         TOTAL_AMOUNT - usedAmount
@@ -61,5 +68,5 @@ class FoodStatsFacadeImpl(
 
     override fun sendMoneyStatsToAllClient(message: FoodStatsMessage) =
         socketIOServer.broadcastOperations
-            .sendEvent(SocketProperties.FOOD_APPLICATION_KEY, message)
+            .sendEvent(SocketProperties.MONEY_KEY, message)
 }
