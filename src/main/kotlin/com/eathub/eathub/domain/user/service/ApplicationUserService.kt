@@ -29,7 +29,7 @@ class ApplicationUserService(
 
         val applicateMessage = buildUserApplicateMessage(savedApplicationUser)
         sendApplicationUserMessageToAllClient(applicateMessage)
-        sendStatsMessage(request.applicationType)
+        sendStatsMessage(request.applicationType, request.userName)
     }
 
     private fun getUserByName(request: UserApplicateRequest) =
@@ -54,8 +54,8 @@ class ApplicationUserService(
         socketIOServer.broadcastOperations
             .sendEvent(SocketProperties.APPLICATE_USER_KEY, applicateMessage)
 
-    private fun sendStatsMessage(applicationType: ApplicationType) {
-        val foodStats = foodStatsFacade.getFoodStats(applicationType)
+    private fun sendStatsMessage(applicationType: ApplicationType, userName: String) {
+        val foodStats = foodStatsFacade.getFoodStats(applicationType, userName)
         foodStatsFacade.sendMoneyStatsToAllClient(foodStats)
     }
 }

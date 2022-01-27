@@ -5,7 +5,9 @@ import com.eathub.eathub.domain.food.application.domain.FoodApplication
 import com.eathub.eathub.domain.food.application.domain.OptionApplication
 import com.eathub.eathub.domain.food.application.presentation.dto.FoodStatsMessage
 import com.eathub.eathub.domain.user.domain.ApplicationUser
+import com.eathub.eathub.domain.user.domain.User
 import com.eathub.eathub.domain.user.domain.enums.ApplicationType
+import com.eathub.eathub.domain.user.domain.exportmanager.UserExportManager
 import com.eathub.eathub.domain.user.domain.repositories.ApplicationUserRepository
 import com.eathub.eathub.global.socket.property.SocketProperties
 import org.springframework.stereotype.Component
@@ -15,6 +17,7 @@ import java.time.LocalDate
 @Component
 class FoodStatsFacadeImpl(
     private val applicationUserRepository: ApplicationUserRepository,
+    private val userExportManager: UserExportManager,
     private val socketIOServer: SocketIOServer
 ) : FoodStatsFacade {
 
@@ -23,7 +26,8 @@ class FoodStatsFacadeImpl(
     }
 
     @Transactional
-    override fun getFoodStats(applicationType: ApplicationType): FoodStatsMessage {
+    override fun getFoodStats(applicationType: ApplicationType, userName: String): FoodStatsMessage {
+        val user = userExportManager.findUserByName(userName)
         val applicationUsers = getApplicationUsers(applicationType)
         val usedAmount = getUsedAmount(applicationUsers)
         val amountCanUse = getAmountCanUse(applicationUsers)
@@ -32,7 +36,7 @@ class FoodStatsFacadeImpl(
             getRemainedAmountFromAmountCanUseAndDeliveryFeeAndUsedAmount(amountCanUse, usedAmount)
 
         return buildFoodStatsMessage(
-            usedAmount = usedAmount,
+            usedAmount = getMyUsedMoney(applicationUsers, user),
             amountPerPerson = amountPerPerson,
             remainedAmount = remainedAmount
         )
@@ -40,6 +44,9 @@ class FoodStatsFacadeImpl(
 
     private fun getApplicationUsers(applicationType: ApplicationType) =
         applicationUserRepository.findAllByIdApplicationDateAndIdApplicationType(LocalDate.now(), applicationType)
+
+    private fun getMyUsedMoney(applicationUsers: List<ApplicationUser>, user: User) =
+        getUsedAmount(applicationUsers.filter { it.user == user })
 
     private fun getUsedAmount(applicationUsers: List<ApplicationUser>) =
         applicationUsers.sumOf { getSumOfAmountFromFoodApplications(it.foodApplication) }
@@ -69,7 +76,9 @@ class FoodStatsFacadeImpl(
     ) = amountCanUse - usedAmount
 
     private fun getTotalDeliveryFee(applicationUsers: List<ApplicationUser>) =
-        applicationUsers.sumOf { applicationUser -> applicationUser.foodApplication.sumOf { it.food.restaurant.deliveryFee } }
+        applicationUsers.flatMap { it.foodApplication }
+            .distinctBy { it.food }
+            .sumOf { it.food.cost }
 
     private fun buildFoodStatsMessage(usedAmount: Long, amountPerPerson: Long, remainedAmount: Long) =
         FoodStatsMessage(

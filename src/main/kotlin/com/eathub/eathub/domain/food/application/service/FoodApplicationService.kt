@@ -38,7 +38,7 @@ class FoodApplicationService(
         val message = buildFoodApplicationMessages(foodApplications)
 
         sendApplicationMessageToAllClient(message)
-        sendStatsMessage(request.applicationType)
+        sendStatsMessage(request.applicationType, request.userName)
     }
 
     private fun buildFoodApplications(
@@ -147,8 +147,8 @@ class FoodApplicationService(
     private fun sendApplicationMessageToClient(socketIOClient: SocketIOClient, message: FoodApplicationMessages) =
         socketIOClient.sendEvent(SocketProperties.FOOD_APPLICATION_LIST_KEY, message)
 
-    private fun sendStatsMessage(applicationType: ApplicationType) {
-        val foodStats = foodStatsFacade.getFoodStats(applicationType)
+    private fun sendStatsMessage(applicationType: ApplicationType, userName: String) {
+        val foodStats = foodStatsFacade.getFoodStats(applicationType, userName)
         foodStatsFacade.sendMoneyStatsToAllClient(foodStats)
     }
 

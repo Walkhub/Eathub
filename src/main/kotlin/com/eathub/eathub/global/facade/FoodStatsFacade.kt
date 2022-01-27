@@ -4,6 +4,6 @@ import com.eathub.eathub.domain.food.application.presentation.dto.FoodStatsMessa
 import com.eathub.eathub.domain.user.domain.enums.ApplicationType
 
 interface FoodStatsFacade {
-    fun getFoodStats(applicationType: ApplicationType): FoodStatsMessage
+    fun getFoodStats(applicationType: ApplicationType, userName: String): FoodStatsMessage
     fun sendMoneyStatsToAllClient(message: FoodStatsMessage)
 }
