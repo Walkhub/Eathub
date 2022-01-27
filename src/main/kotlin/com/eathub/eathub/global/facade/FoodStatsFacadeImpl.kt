@@ -77,7 +77,7 @@ class FoodStatsFacadeImpl(
 
     private fun getTotalDeliveryFee(applicationUsers: List<ApplicationUser>) =
         applicationUsers.flatMap { it.foodApplication }
-            .distinctBy { it.food }
+            .distinctBy { it.food.restaurant }
             .sumOf { it.food.cost }
 
     private fun buildFoodStatsMessage(usedAmount: Long, amountPerPerson: Long, remainedAmount: Long) =
