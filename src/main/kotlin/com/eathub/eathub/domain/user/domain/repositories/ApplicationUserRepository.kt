@@ -13,8 +13,7 @@ import java.time.LocalDate
 interface ApplicationUserRepository : JpaRepository<ApplicationUser, ApplicationUserId> {
     fun findByUserNameAndIdApplicationType(userName: String, applicationType: ApplicationType): ApplicationUser?
 
-    @Query("select au from ApplicationUser au join fetch au.foodApplication fa join fetch fa.food f join fetch f.restaurant where au.id.applicationType = :type and au.id.applicationDate = :date")
-    fun findAllByApplicationDateAndApplicationType(
+    fun findAllByIdApplicationDateAndIdApplicationType(
         @Param("date") date: LocalDate,
         @Param("type") applicationType: ApplicationType
     ): List<ApplicationUser>

@@ -39,7 +39,7 @@ class FoodStatsFacadeImpl(
     }
 
     private fun getApplicationUsers(applicationType: ApplicationType) =
-        applicationUserRepository.findAllByApplicationDateAndApplicationType(LocalDate.now(), applicationType)
+        applicationUserRepository.findAllByIdApplicationDateAndIdApplicationType(LocalDate.now(), applicationType)
 
     private fun getUsedAmount(applicationUsers: List<ApplicationUser>) =
         applicationUsers.sumOf { getSumOfAmountFromFoodApplications(it.foodApplication) }
