@@ -12,11 +12,4 @@ import java.time.LocalDate
 @Repository
 interface ApplicationUserRepository : JpaRepository<ApplicationUser, ApplicationUserId> {
     fun findByUserNameAndIdApplicationType(userName: String, applicationType: ApplicationType): ApplicationUser?
-
-    fun findAllByIdApplicationDateAndIdApplicationType(
-        @Param("date") date: LocalDate,
-        @Param("type") applicationType: ApplicationType
-    ): List<ApplicationUser>
-
-    fun countByIdApplicationDateAndIdApplicationType(applicationDate: LocalDate, applicationType: ApplicationType): Int
 }
