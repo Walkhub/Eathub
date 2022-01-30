@@ -1,5 +1,6 @@
 package com.eathub.eathub.domain.user.presentation
 
+import com.corundumstudio.socketio.SocketIOClient
 import com.corundumstudio.socketio.annotation.OnEvent
 import com.eathub.eathub.domain.user.presentation.dto.GetFoodStatsRequest
 import com.eathub.eathub.domain.user.presentation.dto.UserApplicateRequest
@@ -12,8 +13,8 @@ class ApplicationUserController(
 ) {
 
     @OnEvent("/user/application")
-    fun saveApplicationUser(request: UserApplicateRequest) {
-        applicationUserService.applicateUser(request)
+    fun saveApplicationUser(socketIOClient: SocketIOClient, request: UserApplicateRequest) {
+        applicationUserService.applicateUser(socketIOClient, request)
     }
 
     @OnEvent("/money")

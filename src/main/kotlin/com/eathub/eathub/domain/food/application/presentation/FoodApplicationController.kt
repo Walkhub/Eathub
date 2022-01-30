@@ -13,8 +13,8 @@ class FoodApplicationController(
     private val foodApplicationService: FoodApplicationService
 ) {
     @OnEvent("/food/application")
-    fun foodApplication(request: FoodApplicationRequest) {
-        foodApplicationService.createFoodApplication(request)
+    fun foodApplication(socketIOClient: SocketIOClient, request: FoodApplicationRequest) {
+        foodApplicationService.createFoodApplication(request, socketIOClient)
     }
 
     @OnEvent("/food/application/list")

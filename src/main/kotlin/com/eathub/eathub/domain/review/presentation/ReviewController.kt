@@ -12,8 +12,8 @@ class ReviewController(
     private val reviewService: ReviewService
 ) {
     @OnEvent("/review/create")
-    fun createReview(request: CreateReviewRequest) {
-        reviewService.createReview(request)
+    fun createReview(socketIOClient: SocketIOClient, request: CreateReviewRequest) {
+        reviewService.createReview(socketIOClient, request)
     }
 
     @OnEvent("/review/list")
