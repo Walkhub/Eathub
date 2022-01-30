@@ -7,12 +7,13 @@ import com.eathub.eathub.domain.food.application.domain.OptionApplication
 import com.eathub.eathub.domain.food.application.domain.repositories.FoodApplicationRepository
 import com.eathub.eathub.domain.food.application.presentation.dto.*
 import com.eathub.eathub.domain.food.exportmanager.FoodExportManager
+import com.eathub.eathub.domain.food.stats.facade.FoodStatsFacade
 import com.eathub.eathub.domain.option.domain.exportmanager.OptionExportManager
 import com.eathub.eathub.domain.restaurant.domain.Restaurant
 import com.eathub.eathub.domain.user.domain.ApplicationUser
 import com.eathub.eathub.domain.user.domain.enums.ApplicationType
 import com.eathub.eathub.domain.user.domain.exportmanager.ApplicationUserExportManager
-import com.eathub.eathub.global.facade.FoodStatsFacade
+import com.eathub.eathub.domain.user.domain.exportmanager.UserExportManager
 import com.eathub.eathub.global.socket.property.SocketProperties
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -25,20 +26,22 @@ class FoodApplicationService(
     private val foodExportManager: FoodExportManager,
     private val optionExportManager: OptionExportManager,
     private val foodStatsFacade: FoodStatsFacade,
-    private val socketIOServer: SocketIOServer
+    private val socketIOServer: SocketIOServer,
+    private val userExportManager: UserExportManager
 ) {
 
     @Transactional
-    fun createFoodApplication(request: FoodApplicationRequest) {
+    fun createFoodApplication(request: FoodApplicationRequest, socketIOClient: SocketIOClient) {
+        val userName = userExportManager.getUserNameFromSocketIOClient(socketIOClient)
         val user =
-            applicationUserExportManager.findByUserIdAndApplicationType(request.userName, request.applicationType)
+            applicationUserExportManager.findByUserIdAndApplicationType(userName, request.applicationType)
         val foodApplication = buildFoodApplications(user, request)
         val foodApplications = foodApplicationRepository.saveAll(foodApplication)
 
         val message = buildFoodApplicationMessages(foodApplications)
 
         sendApplicationMessageToAllClient(message)
-        sendStatsMessage(request.applicationType, request.userName)
+        sendStatsMessage(request.applicationType)
     }
 
     private fun buildFoodApplications(
@@ -147,22 +150,22 @@ class FoodApplicationService(
     private fun sendApplicationMessageToClient(socketIOClient: SocketIOClient, message: FoodApplicationMessages) =
         socketIOClient.sendEvent(SocketProperties.FOOD_APPLICATION_LIST_KEY, message)
 
-    private fun sendStatsMessage(applicationType: ApplicationType, userName: String) {
-        val foodStats = foodStatsFacade.getFoodStats(applicationType, userName)
-        foodStatsFacade.sendMoneyStatsToAllClient(foodStats)
+    private fun sendStatsMessage(applicationType: ApplicationType) {
+        foodStatsFacade.sendUsedAmountMessage(applicationType)
     }
 
     fun getMyFoodApplication(socketIOClient: SocketIOClient, request: MyFoodApplicationRequest) {
-        val applications = getMyFoodApplication(request)
+        val name = userExportManager.getUserNameFromSocketIOClient(socketIOClient)
+        val applications = getMyFoodApplication(request, name)
         val myFoodApplicationMessages = buildMyApplicationMessages(applications)
 
         sendMyFoodApplicationMessageToClient(socketIOClient, myFoodApplicationMessages)
     }
 
-    private fun getMyFoodApplication(request: MyFoodApplicationRequest) =
+    private fun getMyFoodApplication(request: MyFoodApplicationRequest, name: String) =
         foodApplicationRepository.findAllByApplicationTypeAndUserName(
             request.applicationType,
-            request.userName,
+            name,
             LocalDate.now()
         )
 

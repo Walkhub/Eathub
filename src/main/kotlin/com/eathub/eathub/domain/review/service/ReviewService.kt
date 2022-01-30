@@ -27,8 +27,9 @@ class ReviewService(
 ) {
 
     @Transactional
-    fun createReview(request: CreateReviewRequest) {
-        val review = buildReview(request)
+    fun createReview(socketIOClient: SocketIOClient, request: CreateReviewRequest) {
+        val name = userExportManager.getUserNameFromSocketIOClient(socketIOClient)
+        val review = buildReview(request, name)
         saveReview(review)
 
         val reviewInformation = findReviewInformationByFoodId(request.foodId)
@@ -36,8 +37,8 @@ class ReviewService(
         sendCreateReviewMessageToAllClient(message)
     }
 
-    private fun buildReview(request: CreateReviewRequest): Review {
-        val user = userExportManager.findUserByName(request.userName)
+    private fun buildReview(request: CreateReviewRequest, name: String): Review {
+        val user = userExportManager.findUserByName(name)
         val food = foodExportManager.findFoodById(request.foodId)
 
         return Review(

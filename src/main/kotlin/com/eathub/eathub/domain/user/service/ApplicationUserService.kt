@@ -1,6 +1,8 @@
 package com.eathub.eathub.domain.user.service
 
+import com.corundumstudio.socketio.SocketIOClient
 import com.corundumstudio.socketio.SocketIOServer
+import com.eathub.eathub.domain.food.stats.facade.FoodStatsFacade
 import com.eathub.eathub.domain.user.domain.ApplicationUser
 import com.eathub.eathub.domain.user.domain.ApplicationUserId
 import com.eathub.eathub.domain.user.domain.User
@@ -11,7 +13,6 @@ import com.eathub.eathub.domain.user.exceptions.UserNameNotFoundException
 import com.eathub.eathub.domain.user.presentation.dto.GetFoodStatsRequest
 import com.eathub.eathub.domain.user.presentation.dto.UserApplicateMessage
 import com.eathub.eathub.domain.user.presentation.dto.UserApplicateRequest
-import com.eathub.eathub.global.facade.FoodStatsFacade
 import com.eathub.eathub.global.socket.property.SocketProperties
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -26,27 +27,27 @@ class ApplicationUserService(
     private val socketIOServer: SocketIOServer
 ) {
     @Transactional
-    fun applicateUser(request: UserApplicateRequest) {
-        val user = getUserByName(request)
-        applicationUserRepository.findByIdOrNull(ApplicationUserId(user.id, request.applicationType, LocalDate.now()))?.let {
-            throw UserNameNotFoundException.EXCEPTION
-        }
+    fun applicateUser(socketIOClient: SocketIOClient, request: UserApplicateRequest) {
+        val name = userExportManager.getUserNameFromSocketIOClient(socketIOClient)
+        val user = getUserByName(name)
+        applicationUserRepository.findByIdOrNull(ApplicationUserId(user.id, request.applicationType, LocalDate.now()))
+            ?.let { throw UserNameNotFoundException.EXCEPTION }
 
         val applicationUser = buildApplicationUser(user, request.applicationType)
         val savedApplicationUser = saveApplicationUser(applicationUser)
 
         val applicateMessage = buildUserApplicateMessage(savedApplicationUser)
         sendApplicationUserMessageToAllClient(applicateMessage)
-        sendStatsMessage(request.applicationType, request.userName)
+        sendStatsMessage(request.applicationType)
     }
 
     @Transactional
     fun getFoodStats(request: GetFoodStatsRequest) {
-        sendStatsMessage(request.applicationType, request.userName)
+        sendStatsMessage(request.applicationType)
     }
 
-    private fun getUserByName(request: UserApplicateRequest) =
-        userExportManager.findUserByName(request.userName)
+    private fun getUserByName(name: String) =
+        userExportManager.findUserByName(name)
 
     private fun buildApplicationUser(user: User, type: ApplicationType) =
         ApplicationUser(
@@ -67,8 +68,7 @@ class ApplicationUserService(
         socketIOServer.broadcastOperations
             .sendEvent(SocketProperties.APPLICATE_USER_KEY, applicateMessage)
 
-    private fun sendStatsMessage(applicationType: ApplicationType, userName: String) {
-        val foodStats = foodStatsFacade.getFoodStats(applicationType, userName)
-        foodStatsFacade.sendMoneyStatsToAllClient(foodStats)
+    private fun sendStatsMessage(applicationType: ApplicationType) {
+        foodStatsFacade.sendUsedAmountMessage(applicationType)
     }
 }
