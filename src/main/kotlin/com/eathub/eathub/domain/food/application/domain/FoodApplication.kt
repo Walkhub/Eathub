@@ -6,7 +6,7 @@ import javax.persistence.*
 
 @Entity
 class FoodApplication(
-    val count: Int,
+    count: Int,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "food_id")
@@ -22,13 +22,20 @@ class FoodApplication(
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "foodApplication", cascade = [CascadeType.PERSIST])
     val optionApplication: MutableList<OptionApplication> = mutableListOf()
-
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0
 
+    var count: Int = count
+        protected set
+
     fun addOptionApplication(optionApplication: OptionApplication) {
         this.optionApplication.add(optionApplication)
+    }
+
+    fun addCount(count: Int): FoodApplication {
+        this.count += count
+        return this
     }
 }
