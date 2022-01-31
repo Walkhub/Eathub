@@ -33,10 +33,8 @@ class FoodApplicationService(
     @Transactional
     fun createFoodApplication(request: FoodApplicationRequest, socketIOClient: SocketIOClient) {
         val userName = userExportManager.getUserNameFromSocketIOClient(socketIOClient)
-        val user =
-            applicationUserExportManager.findByUserIdAndApplicationType(userName, request.applicationType)
-        val foodApplication = buildFoodApplications(user, request)
-        val foodApplications = foodApplicationRepository.saveAll(foodApplication)
+        val user = applicationUserExportManager.findByUserIdAndApplicationType(userName, request.applicationType)
+        val foodApplications = saveOrUpdateFoodApplication(request, user)
 
         val message = buildFoodApplicationMessages(foodApplications)
 
@@ -44,24 +42,41 @@ class FoodApplicationService(
         sendStatsMessage(request.applicationType)
     }
 
-    private fun buildFoodApplications(
-        applicationUser: ApplicationUser,
-        request: FoodApplicationRequest
+    private fun saveOrUpdateFoodApplication(
+        request: FoodApplicationRequest,
+        user: ApplicationUser
     ): List<FoodApplication> {
-        foodExportManager.findFoodsByIds(request.foods.map { it.foodId })
 
-        return request.foods.map {
-            val foodApplication = FoodApplication(
-                food = foodExportManager.findFoodById(it.foodId),
-                applicationUser = applicationUser,
-                count = it.count
-            )
+        val foodApplications = foodApplicationRepository.findAllByApplicationTypeAndApplicationDate(
+            request.applicationType,
+            LocalDate.now()
+        ).associateBy { it.food.id }
 
-            buildOptionApplication(it, foodApplication)
-                .map { optionApplication -> foodApplication.addOptionApplication(optionApplication) }
-
-            foodApplication
+        val unsavedFoodApplications = request.foods.map { foodRequest ->
+            foodApplications[foodRequest.foodId]
+                ?.addCount(foodRequest.count)
+                ?: foodApplicationRepository.save(buildFoodApplication(user, foodRequest))
         }
+
+        return foodApplicationRepository.saveAll(unsavedFoodApplications)
+    }
+
+    private fun buildFoodApplication(
+        applicationUser: ApplicationUser,
+        request: ApplicationRequest
+    ): FoodApplication {
+        foodExportManager.findFoodById(request.foodId)
+
+        val foodApplication = FoodApplication(
+            food = foodExportManager.findFoodById(request.foodId),
+            applicationUser = applicationUser,
+            count = request.count
+        )
+
+        buildOptionApplication(request, foodApplication)
+            .map { optionApplication -> foodApplication.addOptionApplication(optionApplication) }
+
+        return foodApplication
     }
 
     private fun buildOptionApplication(
@@ -186,7 +201,6 @@ class FoodApplicationService(
     private fun sendMyFoodApplicationMessageToClient(
         socketIOClient: SocketIOClient,
         message: MyFoodApplicationMessages
-    ) =
-        socketIOClient.sendEvent(SocketProperties.FOOD_APPLICATION_MINE_KEY, message)
+    ) = socketIOClient.sendEvent(SocketProperties.FOOD_APPLICATION_MINE_KEY, message)
 
 }
