@@ -33,7 +33,7 @@ class FoodApplicationService(
     @Transactional
     fun createFoodApplication(request: FoodApplicationRequest, socketIOClient: SocketIOClient) {
         val userName = userExportManager.getUserNameFromSocketIOClient(socketIOClient)
-        val user = applicationUserExportManager.findByUserIdAndApplicationType(userName, request.applicationType)
+        val user = applicationUserExportManager.findByUserIdAndApplicationType(userName, request.applicationType, LocalDate.now())
         val foodApplications = saveOrUpdateFoodApplication(request, user)
 
         val message = buildFoodApplicationMessages(foodApplications)
@@ -154,7 +154,7 @@ class FoodApplicationService(
         FoodApplicationRestaurantMessages(
             restaurantName = restaurant.name,
             applications = foodApplications,
-            costSum = foodApplications.sumOf { it.cost },
+            costSum = foodApplications.sumOf { it.cost * it.count},
             countSum = foodApplications.sumOf { it.count },
             deliveryFee = restaurant.deliveryFee
         )

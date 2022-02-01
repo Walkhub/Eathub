@@ -43,21 +43,23 @@ class FoodStatsFacadeImpl(
         val users = applicationUserExportManager.findAllByApplicationDate(LocalDate.now())
 
         val totalUsedAmount = foodStats.values.sumOf { it.sumOf { foodStats -> foodStats.usedAmount } }
-        val totalAmount = TOTAL_AMOUNT - foodStats.values.first().first().deliveryFee
+        val totalAmount = TOTAL_AMOUNT - (foodStats.values.firstOrNull()?.firstOrNull()?.deliveryFee ?: 0)
 
-        val amountPerPerson = when(users.size) {
+        val amountPerPerson = when (users.size) {
             0 -> totalAmount
             else -> totalAmount / users.size
         }
         val remainedAmount = totalAmount - totalUsedAmount
 
         foodStats[name]
-            ?.map { FoodStatsMessage(
-                amountPerPerson = amountPerPerson,
-                usedAmount = it.usedAmount,
-                totalUsedAmount = totalUsedAmount,
-                remainedAmount = remainedAmount
-            ) }
+            ?.map {
+                FoodStatsMessage(
+                    amountPerPerson = amountPerPerson,
+                    usedAmount = it.usedAmount,
+                    totalUsedAmount = totalUsedAmount,
+                    remainedAmount = remainedAmount
+                )
+            }
             ?.forEach { socketIOClient.sendEvent(FOOD_STAT_KEY, it) }
     }
 

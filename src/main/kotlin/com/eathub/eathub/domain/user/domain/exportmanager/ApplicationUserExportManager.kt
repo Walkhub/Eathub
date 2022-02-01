@@ -11,8 +11,8 @@ import java.time.LocalDate
 class ApplicationUserExportManager(
     private val applicationUserRepository: ApplicationUserRepository
 ) {
-    fun findByUserIdAndApplicationType(userName: String, applicationType: ApplicationType): ApplicationUser =
-        applicationUserRepository.findByUserNameAndIdApplicationType(userName, applicationType)
+    fun findByUserIdAndApplicationType(userName: String, applicationType: ApplicationType, applicationDate: LocalDate): ApplicationUser =
+        applicationUserRepository.findByUserNameAndIdApplicationTypeAndIdApplicationDate(userName, applicationType, applicationDate)
             ?: throw UserNameNotFoundException.EXCEPTION
 
     fun findAllByApplicationDate(applicationDate: LocalDate) =
