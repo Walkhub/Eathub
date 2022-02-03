@@ -27,6 +27,7 @@ class FoodStatsFacadeImpl(
 
     @Transactional
     override fun sendUsedAmountMessage(applicationType: ApplicationType) {
+        applicationUserExportManager.flush()
         val foodStats = getFoodStatsForNow(applicationType)
         socketIOServer.allClients
             .forEach { sendFoodStatsToClient(it, foodStats) }
