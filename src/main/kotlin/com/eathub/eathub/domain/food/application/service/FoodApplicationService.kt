@@ -33,7 +33,11 @@ class FoodApplicationService(
     @Transactional
     fun createFoodApplication(request: FoodApplicationRequest, socketIOClient: SocketIOClient) {
         val userName = userExportManager.getUserNameFromSocketIOClient(socketIOClient)
-        val user = applicationUserExportManager.findByUserIdAndApplicationType(userName, request.applicationType, LocalDate.now())
+        val user = applicationUserExportManager.findByUserIdAndApplicationType(
+            userName,
+            request.applicationType,
+            LocalDate.now()
+        )
         val foodApplications = saveOrUpdateFoodApplication(request, user)
 
         val message = buildFoodApplicationMessages(foodApplications)
@@ -45,20 +49,38 @@ class FoodApplicationService(
     private fun saveOrUpdateFoodApplication(
         request: FoodApplicationRequest,
         user: ApplicationUser
-    ): List<FoodApplication> {
+    ): MutableList<FoodApplication> {
 
         val foodApplications = foodApplicationRepository.findAllByApplicationTypeAndApplicationDate(
             request.applicationType,
             LocalDate.now()
         ).associateBy { it.food.id }
 
-        val unsavedFoodApplications = request.foods.map { foodRequest ->
-            foodApplications[foodRequest.foodId]
-                ?.addCount(foodRequest.count)
-                ?: foodApplicationRepository.save(buildFoodApplication(user, foodRequest))
+        val unsavedFoodApplications: List<FoodApplication> = request.foods.map { foodRequest ->
+            val foodApplicationToSave = buildFoodApplication(user, foodRequest)
+            val foodApplicationFromDatabase = foodApplications[foodRequest.foodId]
+
+            if (isOptionApplicationEquals(foodApplicationFromDatabase, foodApplicationToSave)) {
+                foodApplicationFromDatabase!!.addCount(foodRequest.count)
+            } else {
+                foodApplicationRepository.save(foodApplicationToSave)
+            }
         }
 
         return foodApplicationRepository.saveAll(unsavedFoodApplications)
+    }
+
+    private fun isOptionApplicationEquals(
+        foodApplicationFromDatabase: FoodApplication?,
+        foodApplicationToSave: FoodApplication
+    ): Boolean {
+        return foodApplicationFromDatabase?.optionApplication
+            ?.filter { optionApplicationFromDatabase ->
+                foodApplicationToSave.optionApplication.any { optionApplicationToSave ->
+                    optionApplicationFromDatabase.option == optionApplicationToSave.option
+                }
+            }?.size == foodApplicationFromDatabase?.optionApplication?.size
+                && foodApplicationFromDatabase != null
     }
 
     private fun buildFoodApplication(
@@ -121,7 +143,6 @@ class FoodApplicationService(
             }
 
         return getFoodApplicationMessages(applications)
-
     }
 
     private fun getFoodApplicationMessageList(foodApplications: List<FoodApplication>) =
@@ -154,7 +175,7 @@ class FoodApplicationService(
         FoodApplicationRestaurantMessages(
             restaurantName = restaurant.name,
             applications = foodApplications,
-            costSum = foodApplications.sumOf { it.cost * it.count},
+            costSum = foodApplications.sumOf { it.cost + it.options.sumOf { option -> option.optionCost } * it.count },
             countSum = foodApplications.sumOf { it.count },
             deliveryFee = restaurant.deliveryFee
         )
