@@ -18,4 +18,7 @@ class ApplicationUserExportManager(
     fun findAllByApplicationDate(applicationDate: LocalDate) =
         applicationUserRepository.findAllByIdApplicationDate(applicationDate)
 
+    fun flush() =
+        applicationUserRepository.flush()
+
 }
