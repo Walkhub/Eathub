@@ -15,7 +15,7 @@ interface FoodApplicationRepository : JpaRepository<FoodApplication, FoodApplica
         @Param("date") date: LocalDate
     ): List<FoodApplication>
 
-    @Query("select a from FoodApplication a join fetch a.food f join fetch a.applicationUser u join fetch a.optionApplication o join fetch o.option where u.id.applicationType = :type and u.id.applicationDate = :date")
+    @Query("select a from FoodApplication a join fetch a.food f join fetch a.applicationUser u left join fetch a.optionApplication o left join fetch o.option where u.id.applicationType = :type and u.id.applicationDate = :date")
     fun findAllByApplicationTypeAndApplicationDate(
         @Param("type") applicationType: ApplicationType,
         @Param("date") date: LocalDate
