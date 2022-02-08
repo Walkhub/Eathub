@@ -15,4 +15,15 @@ class OptionApplication(
 ) {
     @EmbeddedId
     val optionApplicationId = OptionApplicationId(option.id, foodApplication.id)
+
+    override fun equals(other: Any?): Boolean {
+        return when (other) {
+            is OptionApplication -> other.optionApplicationId == optionApplicationId
+            else -> false
+        }
+    }
+
+    override fun hashCode(): Int {
+        return "${optionApplicationId.foodApplicationId}${optionApplicationId.optionId}".toInt()
+    }
 }
