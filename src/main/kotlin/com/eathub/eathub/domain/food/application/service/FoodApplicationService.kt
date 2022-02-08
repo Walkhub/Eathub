@@ -175,7 +175,7 @@ class FoodApplicationService(
         FoodApplicationRestaurantMessages(
             restaurantName = restaurant.name,
             applications = foodApplications,
-            costSum = foodApplications.sumOf { it.cost + it.options.sumOf { option -> option.optionCost } * it.count },
+            costSum = foodApplications.sumOf { (it.cost + it.options.sumOf { option -> option.optionCost }) * it.count },
             countSum = foodApplications.sumOf { it.count },
             deliveryFee = restaurant.deliveryFee
         )
