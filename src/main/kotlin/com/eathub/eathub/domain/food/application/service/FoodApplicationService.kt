@@ -190,7 +190,7 @@ class FoodApplicationService(
     private fun buildMyApplicationMessages(applications: List<FoodApplication>): MyFoodApplicationMessages {
         val myFoodApplicationMessageList = applications.groupBy { it.food }
             .flatMap {
-                it.value.groupBy { foodApplication -> foodApplication.optionApplication }
+                it.value.groupBy{foodApplication -> foodApplication.optionApplication.map { it.optionApplicationId } }
                     .map { foodApplications -> buildMyApplicationMessage(foodApplications.value) }
             }
         return MyFoodApplicationMessages(myFoodApplicationMessageList)
