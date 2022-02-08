@@ -50,37 +50,11 @@ class FoodApplicationService(
         request: FoodApplicationRequest,
         user: ApplicationUser
     ): MutableList<FoodApplication> {
-
-        val foodApplications = foodApplicationRepository.findAllByApplicationTypeAndApplicationDate(
-            request.applicationType,
-            LocalDate.now()
-        ).associateBy { it.food.id }
-
         val unsavedFoodApplications: List<FoodApplication> = request.foods.map { foodRequest ->
-            val foodApplicationToSave = buildFoodApplication(user, foodRequest)
-            val foodApplicationFromDatabase = foodApplications[foodRequest.foodId]
-
-            if (isOptionApplicationEquals(foodApplicationFromDatabase, foodApplicationToSave)) {
-                foodApplicationFromDatabase!!.addCount(foodRequest.count)
-            } else {
-                foodApplicationRepository.save(foodApplicationToSave)
-            }
+            buildFoodApplication(user, foodRequest)
         }
 
         return foodApplicationRepository.saveAll(unsavedFoodApplications)
-    }
-
-    private fun isOptionApplicationEquals(
-        foodApplicationFromDatabase: FoodApplication?,
-        foodApplicationToSave: FoodApplication
-    ): Boolean {
-        return foodApplicationFromDatabase?.optionApplication
-            ?.filter { optionApplicationFromDatabase ->
-                foodApplicationToSave.optionApplication.any { optionApplicationToSave ->
-                    optionApplicationFromDatabase.option == optionApplicationToSave.option
-                }
-            }?.size == foodApplicationFromDatabase?.optionApplication?.size
-                && foodApplicationFromDatabase != null
     }
 
     private fun buildFoodApplication(
@@ -146,17 +120,22 @@ class FoodApplicationService(
     }
 
     private fun getFoodApplicationMessageList(foodApplications: List<FoodApplication>) =
-        foodApplications.map { buildFoodApplicationMessage(it) }
+        foodApplications.groupBy { it.food }
+            .map { buildFoodApplicationMessage(it.value) }
 
-    private fun buildFoodApplicationMessage(foodApplication: FoodApplication) =
-        FoodApplicationMessage(
+    private fun buildFoodApplicationMessage(foodApplications: List<FoodApplication>): FoodApplicationMessage {
+        val count = foodApplications.sumOf { it.count }
+        val foodApplication = foodApplications.first()
+
+        return FoodApplicationMessage(
             cost = foodApplication.food.cost,
-            count = foodApplication.count,
+            count = count,
             foodId = foodApplication.food.id,
             foodName = foodApplication.food.name,
             options = buildOptionApplicationMessage(foodApplication),
             imageUrl = foodApplication.food.picture
         )
+    }
 
     private fun buildOptionApplicationMessage(foodApplication: FoodApplication) =
         foodApplication.optionApplication.map {
@@ -206,18 +185,20 @@ class FoodApplicationService(
         )
 
     private fun buildMyApplicationMessages(applications: List<FoodApplication>): MyFoodApplicationMessages {
-        val myFoodApplicationMessageList = applications.map { buildMyApplicationMessage(it) }
+        val myFoodApplicationMessageList = applications.groupBy { it.food }.map { buildMyApplicationMessage(it.value) }
         return MyFoodApplicationMessages(myFoodApplicationMessageList)
     }
 
-    private fun buildMyApplicationMessage(application: FoodApplication) =
-        MyFoodApplicationMessage(
+    private fun buildMyApplicationMessage(applications: List<FoodApplication>): MyFoodApplicationMessage {
+        val application = applications.first()
+        return MyFoodApplicationMessage(
             restaurantName = application.food.restaurant.name,
             cost = application.food.cost,
             foodName = application.food.name,
             foodId = application.food.id,
             imageUrl = application.food.picture
         )
+    }
 
     private fun sendMyFoodApplicationMessageToClient(
         socketIOClient: SocketIOClient,
