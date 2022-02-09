@@ -119,14 +119,15 @@ class FoodApplicationService(
         return getFoodApplicationMessages(applications)
     }
 
-    private fun getFoodApplicationMessageList(foodApplications: List<FoodApplication>) =
-        foodApplications.groupBy { it.food }
-            .map {
+    private fun getFoodApplicationMessageList(foodApplications: List<FoodApplication>): List<FoodApplicationMessage> {
+        return foodApplications.groupBy { it.food }
+            .flatMap {
                 it.value.groupBy { foodApplication ->
                     foodApplication.optionApplication.map { it.option.id }
-                }
+                }.values
             }
-            .flatMap { it.values.map { buildFoodApplicationMessage(it) } }
+            .map { buildFoodApplicationMessage(it.distinct()) }
+    }
 
     private fun buildFoodApplicationMessage(foodApplications: List<FoodApplication>): FoodApplicationMessage {
         val count = foodApplications.sumOf { it.count }
@@ -191,12 +192,12 @@ class FoodApplicationService(
 
     private fun buildMyApplicationMessages(applications: List<FoodApplication>): MyFoodApplicationMessages {
         val myFoodApplicationMessageList = applications.groupBy { it.food }
-            .map {
+            .flatMap {
                 it.value.groupBy { foodApplication ->
                     foodApplication.optionApplication.map { it.option.id }
-                }
+                }.values
             }
-            .flatMap { it.values.map { buildMyApplicationMessage(it) } }
+            .map { buildMyApplicationMessage(it.distinct()) }
         return MyFoodApplicationMessages(myFoodApplicationMessageList)
     }
 
